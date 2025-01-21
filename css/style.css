@@ -1,0 +1,154 @@
+body {
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+.hide {
+	display: none;
+}
+
+.page {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	overflow: hidden;
+}
+
+
+/* -------------------------------------- */
+/*KEYBOARD*/
+/* -------------------------------------- */
+
+div.keyboardPosition {
+font-family: Arial;
+	margin-left: auto ;
+	margin-right: auto ;
+	position: absolute;
+	text-align:center;
+	top: 5px;
+	left: 0px;
+	width:100%;
+	height: 450px;
+	-webkit-user-select: none; /* Safari 3.1+ */
+    -moz-user-select: none; /* Firefox 2+ */
+    -ms-user-select: none; /* IE 10+ */
+    user-select: none; /* Standard syntax */
+}
+
+
+div#keypad {
+	position: absolute;
+	overflow: hidden;
+	width: 420px;
+	z-index: 1000;
+	display: none;
+	border: 4px solid #c0c0c0;
+	background-color: #ffffff;
+	-webkit-user-select: none; /* Safari 3.1+ */
+    -moz-user-select: none; /* Firefox 2+ */
+    -ms-user-select: none; /* IE 10+ */
+    user-select: none; /* Standard syntax */
+}
+
+div#keyboard {
+	position: absolute;
+	overflow: hidden;
+	width: 960px;
+	z-index: 1000;
+	display: none;
+	border: 4px solid #c0c0c0;
+	background-color: #ffffff;
+	-webkit-user-select: none; /* Safari 3.1+ */
+    -moz-user-select: none; /* Firefox 2+ */
+    -ms-user-select: none; /* IE 10+ */
+    user-select: none; /* Standard syntax */
+}
+
+div.key {
+	/*float: left;*/
+	border: 2px solid #c0c0c0;
+	border-radius: 20px;
+    border-radius: 20px;
+    -webkit-border-radius: 20px;
+    -webkit-border-radius: 20px;
+    -moz-border-radius: 20px;
+    -moz-border-radius: 20px;
+	margin-right: 5px;
+	margin-bottom: 5px;
+	/*padding-top: 6px;*/
+	font-size: 40px;
+	text-align: center;
+	height: 50px;
+	background-image: url( ../images/btn-overlay.png );
+    background-repeat: repeat-x;
+    background-color: #ffffff;
+	color: #000000;
+	vertical-align:middle;
+	-webkit-user-select: none; /* Safari 3.1+ */
+    -moz-user-select: none; /* Firefox 2+ */
+    -ms-user-select: none; /* IE 10+ */
+    user-select: none; /* Standard syntax */
+}
+
+div.keypad {
+	width: 90px;
+	height: 60px;
+	line-height: 60px;
+	font-size: 40px;
+	background-color: #00aadd;
+	color: #ffffff;
+	text-shadow: -1px -1px 0 #ccc, 1px -1px 0 #ccc, -1px 1px 0 #ccc, 1px 1px 0 #ccc;
+	-webkit-user-select: none; /* Safari 3.1+ */
+    -moz-user-select: none; /* Firefox 2+ */
+    -ms-user-select: none; /* IE 10+ */
+    user-select: none; /* Standard syntax */
+}
+
+
+div.keyremove {
+	background-color: #ff6600;
+	width: 90px;
+	height: 60px;
+	line-height: 60px;
+	font-size: 40px;
+	color: #ffffff;
+	text-shadow: -1px -1px 0 #ccc, 1px -1px 0 #ccc, -1px 1px 0 #ccc, 1px 1px 0 #ccc;
+	-webkit-user-select: none; /* Safari 3.1+ */
+    -moz-user-select: none; /* Firefox 2+ */
+    -ms-user-select: none; /* IE 10+ */
+    user-select: none; /* Standard syntax */
+}
+
+.tableMonth, .tableDay{
+	width: 100%;
+	display:block;	
+    margin-right: auto;
+	float: left;
+}
+
+
+.month, .day{
+	padding: 20px;
+	margin: 5px;
+	border: 2px solid #c0c0c0;
+	border-radius: 10px;
+    border-radius: 10px;
+    -webkit-border--radius: 10px;
+    -webkit-border--radius: 10px;
+    -moz-border-radius: 10px;
+	-moz-border-radius: 10px;
+	text-align: center;
+	vertical-align:top;
+	float:left;	
+}
+
+.month {	
+	width: 20%;	
+}
+
+.day {
+	width: 10%;
+}

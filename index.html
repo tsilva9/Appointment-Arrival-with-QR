@@ -1,0 +1,118 @@
+<!DOCTYPE html> 
+<html>
+	<head>
+    	<title>App Arrival TP</title>
+    	<meta http-equiv="pragma" content="no-cache"/>
+    	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<link type="text/css" href="css/style.css" rel="stylesheet" />
+    	<link href="/font/qpFonts.css" rel="stylesheet" />
+		<script src="scripts/jquery-1.6.4.min.js"></script>
+		<script src="scripts/controller.js"></script>
+		<script src="scripts/script.js"></script>
+		<script src="scripts/jquery.i18n.properties.js"></script>
+		<script src="scripts/fastclick.js"></script>		
+	
+	    <script type="text/javascript">
+    
+	        // The following function will be called when page has been loaded
+	        $(function() {
+	        	// hook up widget client event
+	        	qmatic.webwidget.client.setOnLoaded(controller.onLoaded);
+	        	qmatic.webwidget.client.setOnLoadError(controller.onLoadError);
+			});
+        
+	    </script>
+
+	</head>
+<body>
+	<div class="page" id="page1" style="display:none;">
+		<div class="keyboardPosition">
+			<table border="0" width="100%">
+				<tbody>
+					<tr>
+						<td>
+							<div id="numKeyboard">
+								<table border="0">
+									<tbody>
+										<tr align="center">
+											<td align="center"><div id="key1" class="key keypad" onclick="addChar('1')">1</div></td>
+											<td align="center"><div id="key2" class="key keypad" onclick="addChar('2')">2</div></td>
+											<td align="center"><div id="key3" class="key keypad" onclick="addChar('3')">3</div></td>
+										</tr>
+										<tr align="center">
+											<td align="center"><div id="key4" class="key keypad" onclick="addChar('4')">4</div></td>
+											<td align="center"><div id="key5" class="key keypad" onclick="addChar('5')">5</div></td>
+											<td align="center"><div id="key6" class="key keypad" onclick="addChar('6')">6</div></td>
+										</tr>
+										<tr align="center">
+											<td align="center"><div id="key7" class="key keypad" onclick="addChar('7')">7</div></td>
+											<td align="center"><div id="key8" class="key keypad" onclick="addChar('8')">8</div></td>
+											<td align="center"><div id="key9" class="key keypad" onclick="addChar('9')">9</div></td>
+										</tr>
+										<tr align="center">
+											<td align="center"><div id="key11"  class="key keyremove" onclick="deleteChar(this)">&lt;</div></td>
+											<td align="center"><div id="key10" class="key keypad" onclick="addChar('0')">0</div></td>
+											<td align="center"><div id="key12"  class="key keyremove" onclick="clearChar(this)">C</div></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div> 
+	</div>
+	<div class="page" id="dobPageMonth" style="display:none;">
+		<div class="tableMonth">
+			<div class="month" id="month1" onclick="controller.selectMonth('01');">January</div>
+			<div class="month" id="month2" onclick="controller.selectMonth('02');">February</div>
+			<div class="month" id="month3" onclick="controller.selectMonth('03');">March</div>
+			<div class="month" id="month4" onclick="controller.selectMonth('04');">April</div>
+			<div class="month" id="month5" onclick="controller.selectMonth('05');">May</div>
+			<div class="month" id="month6" onclick="controller.selectMonth('06');">June</div>
+			<div class="month" id="month7" onclick="controller.selectMonth('07');">July</div>
+			<div class="month" id="month8" onclick="controller.selectMonth('08');">August</div>
+			<div class="month" id="month9" onclick="controller.selectMonth('09');">September</div>
+			<div class="month" id="month10" onclick="controller.selectMonth('10');">October</div>
+			<div class="month" id="month11" onclick="controller.selectMonth('11');">November</div>
+			<div class="month" id="month12" onclick="controller.selectMonth('12');">December</div>
+		</div>
+	  </div>
+	  <div class="page" id="dobPageDay" style="display:none;">
+		<div class="tableDay">
+			<div class="day" onclick="controller.selectDay('01')">1</div>
+			<div class="day" onclick="controller.selectDay('02')">2</div>
+			<div class="day" onclick="controller.selectDay('03')">3</div>
+			<div class="day" onclick="controller.selectDay('04')">4</div>
+			<div class="day" onclick="controller.selectDay('05')">5</div>
+			<div class="day" onclick="controller.selectDay('06')">6</div>
+			<div class="day" onclick="controller.selectDay('07')">7</div>
+			<div class="day" onclick="controller.selectDay('08')">8</div>
+			<div class="day" onclick="controller.selectDay('09')">9</div>
+			<div class="day" onclick="controller.selectDay('10')">10</div>
+			<div class="day" onclick="controller.selectDay('11')">11</div>
+			<div class="day" onclick="controller.selectDay('12')">12</div>
+			<div class="day" onclick="controller.selectDay('13')">13</div>
+			<div class="day" onclick="controller.selectDay('14')">14</div>
+			<div class="day" onclick="controller.selectDay('15')">15</div>
+			<div class="day" onclick="controller.selectDay('16')">16</div>
+			<div class="day" onclick="controller.selectDay('17')">17</div>
+			<div class="day" onclick="controller.selectDay('18')">18</div>
+			<div class="day" onclick="controller.selectDay('19')">19</div>
+			<div class="day" onclick="controller.selectDay('20')">20</div>
+			<div class="day" onclick="controller.selectDay('21')">21</div>
+			<div class="day" onclick="controller.selectDay('22')">22</div>
+			<div class="day" onclick="controller.selectDay('23')">23</div>
+			<div class="day" onclick="controller.selectDay('24')">24</div>
+			<div class="day" onclick="controller.selectDay('25')">25</div>
+			<div class="day" onclick="controller.selectDay('26')">26</div>
+			<div class="day" onclick="controller.selectDay('27')">27</div>
+			<div class="day" onclick="controller.selectDay('28')">28</div>
+			<div class="day" onclick="controller.selectDay('29')">29</div>
+			<div class="day" onclick="controller.selectDay('30')">30</div>
+			<div class="day" onclick="controller.selectDay('31')">31</div>
+		  </div> 
+	  </div>
+	</body>
+</html>

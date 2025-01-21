@@ -1,0 +1,118 @@
+
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:q="http://qmatic.com"
+ 		id="http://qmatic.com/widgets/appointarrival"
+ 		version="7.0.58"
+        width="400"
+        height="400">
+        
+  <name>appointarrivalqr</name>
+  <name xml:lang="en">Appointment Arrival Widget with QR</name>
+  <description>Arriving appointments via QR code reader</description>
+
+  <feature name="http://qmatic.com/features/touchprinter-widget" required="true"/>
+  <feature name="http://qmatic.com/features/orchestra-connector" required="true"/>
+
+  <content src="index.html"/>
+  <icon src="images/icon.png"/>  
+  <access origin="*"/>  
+  <author>Bouwdewijn van Duijn, Tomas Silva</author>
+  <licence>Copyright (c) Qmatic</licence>
+
+  <q:standalone>false</q:standalone>
+  
+   <q:attribute type="enumlist" key="id.field" name="id.field" description="id.field.description">
+    <q:enum name="QWebBook" value="QWebBookId"/>
+    <q:enum name="Appointment External ID" value="externalId"/>
+    <q:enum name="Phone Number" value="phone"/>
+    <q:enum name="Phone Number (last X digits)" value="phoneLastDigits"/>
+    <q:enum name="Date of Birth" value="dob"/>
+    <q:enum name="Customer Identification Number" value="identificationNumber"/>
+    <q:enum name="eTermin" value="eTerminId"/>
+	<!--<q:enum name="Appointment Public ID" value="publicId"/>-->
+    <q:enum name="Id 4 last Digits (TicketId)" value="id4lastdigits"/>	
+  </q:attribute>
+  <q:attribute type="number" key="phone.x.digits" name="phone.x.digits" description="phone.x.digits.description" defaultValue="5"></q:attribute>
+  <!-- Date of Birth Input type -->
+  <q:attribute type="enumlist" key="dateOfBirthInputType" name="dateOfBirthInputType" description="dateOfBirthInputType.description">
+    <q:enum name="Buttons" value="buttons"/>
+	  <q:enum name="Keyboard" value="keyboard"/>
+  </q:attribute>
+  <q:attribute type="enumlist" key="dateOfBirthInputFormat" name="dateOfBirthInputFormat" description="dateOfBirthInputFormat.description">
+    <q:enum name="MM->DD->YYYY" value="MM-DD-YYYY"/>
+	  <q:enum name="DD->MM->YYYY" value="DD-MM-YYYY"/>
+    <q:enum name="YYYY->MM->DD" value="YYYY-MM-DD"/>
+	  <q:enum name="YYYY->DD->MM" value="YYYY-DD-MM"/>
+  </q:attribute>
+  <q:attribute type="string" key="year.placeholder" name="year.placeholder" description="year.placeholder.description" defaultValue="YYYY" ></q:attribute>
+  <q:attribute type="string" key="month.placeholder" name="month.placeholder" description="month.placeholder.description" defaultValue="MM"></q:attribute>
+  <q:attribute type="string" key="day.placeholder" name="day.placeholder" description="day.placeholder.description" defaultValue="DD"></q:attribute>
+
+  <q:attribute type="enumlist" key="arrive.first" name="arrive.first" description="arrive.first">
+    <q:enum name="No" value="false"/>
+	  <q:enum name="Yes" value="true"/>
+  </q:attribute>
+
+  <!-- Text Font, colour and images for keyboard -->
+  <q:attribute type="font" key="text.font" name="text.font" description="text.font.description" defaultValue="Arial;36px;normal;normal"></q:attribute>
+  <q:attribute type="color" key="text.color" name="text.color" description="text.color.description" defaultValue="#000000"></q:attribute>
+  <q:attribute type="color" key="key.bg.color" name="key.bg.color" description="key.bg.color.description" defaultValue="#FFFFFF"></q:attribute>  
+  <q:attribute type="color" key="keydel.bg.color" name="keydel.bg.color" description="keydel.bg.color.description" defaultValue="#FFFFFF"></q:attribute>  
+  <q:attribute type="image" key="key.image" name="key.image" description="key.image.description"></q:attribute> 
+  <q:attribute type="image" key="keydel.image" name="keydel.image" description="keydel.image.description"></q:attribute>  
+
+  <!-- background color -->
+  <q:attribute type="color" key="bg.color" name="bg.color" description="bg.color.description" defaultValue="transparent"></q:attribute>
+
+  <!-- Back to start page -->
+  <q:attribute type="page" key="page.name" name="page.name" description="page.name.description" ></q:attribute>
+ 
+  
+  <!-- Pages -->
+  <q:attribute type="page" key="page.not.found" name="page.not.found" description="page.not.found.description" defaultValue=""></q:attribute>  
+  <q:attribute type="page" key="page.too.early" name="page.too.early" description="page.too.early.description" defaultValue=""></q:attribute>  
+  <q:attribute type="page" key="page.too.late" name="page.too.late" description="page.too.late.description" defaultValue=""></q:attribute>  
+  <q:attribute type="page" key="page.multiple" name="page.multiple" description="page.multiple.description" defaultValue=""></q:attribute>  
+
+  <!-- Elements on surface -->
+  <q:attribute type="string" key="message.element" name="message.element" description="message.element.description" ></q:attribute>
+  <q:attribute type="string" key="input.element" name="input.element" description="input.element.description" ></q:attribute>
+  <q:attribute type="boolean" key="input.mask" name="input.mask" description="input.mask.description" defaultValue="false"></q:attribute>
+  <q:attribute type="string" key="add.btn.element" name="add.btn.element" description="add.btn.description" ></q:attribute>
+  <q:attribute type="number" key="max.num" name="max.num" description="max.num.description" defaultValue="15"></q:attribute>
+  <q:attribute type="string"  key="phone.validationMsgId" name="phone.validationMsgId" description="phone.validationMsgId.description" ></q:attribute> 
+  <q:attribute type="string"  key="id4lastdigits.validationMsgId" name="id4lastdigits.validationMsgId" description="id4lastdigits.validationMsgId.description" ></q:attribute> 
+  <q:attribute type="string" key="phone.prefix" name="phone.prefix" description="phone.prefix.description" defaultValue=""></q:attribute>
+  <q:attribute type="boolean" key="phone.prefix.show" name="phone.prefix.show" description="phone.prefix.show.description" defaultValue="true"></q:attribute>  
+  <q:attribute type="string" key="year.element" name="year.element" description="year.element.description" ></q:attribute>
+  <q:attribute type="string" key="month.element" name="month.element" description="month.element.description" ></q:attribute>
+  <q:attribute type="string" key="day.element" name="day.element" description="day.element.description" ></q:attribute>
+  <!-- Appointment settings -->  
+  <q:attribute type="number" key="early.minutes" name="early.minutes" description="early.minutes.description" defaultValue="15"></q:attribute>
+  <q:attribute type="number" key="late.minutes" name="late.minutes" description="late.minutes.description" defaultValue="0"></q:attribute>  
+  <q:attribute type="string" key="default.language" name="default.language" description="default.language.description" ></q:attribute>    
+  <q:attribute type="string" key="text.enter.app.time" name="text.enter.app.time" description="text.enter.app.time.description" defaultValue="Please enter your appointment time"></q:attribute>  
+  <q:attribute type="string" key="custom.ticketid.field" name="custom.ticketid.field" description="custom.ticketid.field.description" defaultValue=""></q:attribute>  
+  <q:attribute type="boolean" key="ticketid.isidfield" name="ticketid.isidfield" description="ticketid.isidfield.description" defaultValue="false"></q:attribute>  
+
+  <!-- Virtual Printer - Logic Id for multi branch/department printer -->
+  <q:attribute type="number" key="virtual.printer" name="virtual.printer" description="virtual.printer.description" validation="^\d{1,5}$"></q:attribute>
+  <!--<q:attribute type="number" key="appointment.cache.time" name="appointment.cache.time" description="appointment.cache.time.description" defaultValue="900"></q:attribute>-->
+  <q:attribute type="string" key="ticket.element" name="ticket.element" description="ticket.element.description" defaultValue="false"></q:attribute>
+  <q:attribute type="string" key="zone.element" name="zone.element" description="zone.element.description" defaultValue=""></q:attribute>
+
+  <!-- Scanner settings -->
+  <q:attribute type="enumlist" key="scan.id.field" name="scan.id.field" description="scan.id.field.description">
+    <q:enum name="QWebBook" value="QWebBookId"/>
+	<q:enum name="Appointment External ID" value="externalId"/>
+    <q:enum name="Appointment Public ID" value="publicId"/>
+    <q:enum name="Customer Identification Number" value="identificationNumber"/>
+    <q:enum name="Id 4 last Digits (TicketId)" value="id4lastdigits"/>
+    <q:enum name="eTermin" value="eTerminId"/>
+  </q:attribute>
+   <q:attribute type="boolean" key="barcode.enabled" name="barcode.enabled" description="barcode.enabled.description" defaultValue="false"></q:attribute>
+   <q:attribute type="page" key="page.barcode.busy" name="page.barcode.busy" description="page.barcode.busy.description" ></q:attribute>
+   <q:attribute type="number" key="barcode.start" name="barcode.start" description="barcode.start.description" defaultValue="0" ></q:attribute>   
+   <q:attribute type="number" key="barcode.end" name="barcode.end" description="barcode.end.description" defaultValue="-1" ></q:attribute>   
+   <q:attribute type="boolean" key="qrcode.enabled" name="qrcode.enabled" description="qrcode.enabled.description" defaultValue="true"></q:attribute>
+   <q:attribute type="page" key="page.qrcode.busy" name="page.qrcode.busy" description="page.qrcode.busy.description" ></q:attribute>
+</widget>
