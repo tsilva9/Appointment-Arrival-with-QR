@@ -1,7 +1,7 @@
 
 <widget xmlns="http://www.w3.org/ns/widgets" xmlns:q="http://qmatic.com"
- 		id="http://qmatic.com/widgets/appointarrival"
- 		version="7.0.58"
+ 		id="http://qmatic.com/widgets/appointarrivalqr"
+ 		version="7.3.59"
         width="400"
         height="400">
         

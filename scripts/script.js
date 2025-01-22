@@ -928,6 +928,7 @@ function initQRCodeReader() {
         isScanning = false;
     });
 
+
     qrWebSocket.addEventListener('error', (error) => {
         writeDebugInfo('QR Code WebSocket error: ' + error);
         isScanning = false;
