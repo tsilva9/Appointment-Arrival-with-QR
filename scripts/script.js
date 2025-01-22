@@ -978,16 +978,16 @@ function handleQRMessage(data) {
         writeDebugInfo('Received QR message: ' + JSON.stringify(message));
 
         // Handle scan result
-        if (message.Event === "ScanResult" && message.Result && message.Result.Data) {
-            const scannedData = message.Result.Data;
-            inputValue = scannedData;
-            writeDebugInfo("QR Code scanned, processing value: " + inputValue);
-            confirmAppointmentId("qrcode");
-        }
-        // Handle response messages
-        else if (message.Event === "Response") {
-            if (message.Result.Status !== "SUCCESS") {
+        if (message.Event === "Response") {
+            if (message.Result?.Format?.contains("ERROR")) {
                 writeDebugInfo("QR Command failed: " + message.Result.Message);
+            } else if (message.Result?.Format?.contains("Decoded")) {
+                const scannedData = message.Result.Text;
+				inputValue = scannedData;
+				writeDebugInfo("QR Code scanned, processing value: " + inputValue);
+				confirmAppointmentId("qrcode");
+            } else {
+                writeDebugInfo("Event response: " + JSON.stringify(message.Result));
             }
         }
     } catch (error) {
