@@ -1034,6 +1034,7 @@ function handleQRMessage(data) {
                     break;
                     
                 case "DecodedText":
+					if (result.Format.includes("Error") || result.Text === "") break;
                     const scannedData = result.Text;
                     inputValue = scannedData;
                     console.log("QR Code scanned, processing value: " + inputValue);
