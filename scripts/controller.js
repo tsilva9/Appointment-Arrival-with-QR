@@ -520,7 +520,6 @@ var controller = (function($) {
 			window.addEventListener('beforeunload', function() {
 				if (qrWebSocket) {
 					stopScanning();
-					qrWebSocket.close();
 				}
 			});
 
