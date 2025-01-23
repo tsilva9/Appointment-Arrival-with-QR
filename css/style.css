@@ -31,7 +31,7 @@ font-family: Arial;
 	top: 5px;
 	left: 0px;
 	width:100%;
-	height: 450px;
+	height: 600px;
 	-webkit-user-select: none; /* Safari 3.1+ */
     -moz-user-select: none; /* Firefox 2+ */
     -ms-user-select: none; /* IE 10+ */
@@ -42,7 +42,7 @@ font-family: Arial;
 div#keypad {
 	position: absolute;
 	overflow: hidden;
-	width: 420px;
+	width: 600px;
 	z-index: 1000;
 	display: none;
 	border: 4px solid #c0c0c0;

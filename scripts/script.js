@@ -1,6 +1,7 @@
 var develop = false;
 var qrWebSocket = null;
 var isScanning = false;
+var isProcessing = false;
 
 function reset(){
 	inputValue = "";
@@ -133,6 +134,7 @@ function formatDateToEnteredDOB(date) {
 }
 
 function confirmAppointmentId(input){
+	isProcessing = true;
 	foundAppointments=[];
 	var inputType = "keyboard";
 	idField = scanAskTime ? scanIdField : inputIdField; // use scanIdField if scan done and multiple appointments found
@@ -640,6 +642,7 @@ function confirmAppointmentId(input){
 			
 		}
 	}
+	isProcessing = false;
 }
 
 function getArriveUnitId(br){
@@ -918,103 +921,111 @@ function initQRCodeReader() {
     
     qrWebSocket.addEventListener('open', () => {
         writeDebugInfo('QR Code WebSocket connection opened');
-		console.log("Starting QR Code scanning");
+        console.log("Starting QR Code scanning");
         startScanning();
     });
 
     qrWebSocket.addEventListener('message', (event) => {
-		console.log("Received QR Code message");
+        console.log("Received QR Code message");
         handleQRMessage(event.data);
     });
 
     qrWebSocket.addEventListener('close', () => {
         writeDebugInfo('QR Code WebSocket connection closed');
-		console.log("QR Code WebSocket connection closed");
+        console.log("QR Code WebSocket connection closed");
+        if (qrWebSocket) {
+            qrWebSocket.close();
+            qrWebSocket = null;
+        }
         isScanning = false;
-		stopScanning();
+        socketID = null;
     });
 
 
     qrWebSocket.addEventListener('error', (event) => {
         writeDebugInfo('QR Code WebSocket error: ' + JSON.stringify(event.target));
         isScanning = false;
-		console.log("QR Code WebSocket error: " + JSON.stringify(event.target));
+        console.log("QR Code WebSocket error");
+        // Attempt to reconnect after error
+        setTimeout(() => {
+            if (!isScanning) {
+                initQRCodeReader();
+            }
+        }, 5000);
     });
 }
 
 function startScanning() {
     if (!qrWebSocket || isScanning) return;
-	if (socketID) {
-		console.log("QR Code scanning already started, ID: " + socketID);
-		return;
-	} else {
-		const d = new Date();
-		socketID = d.getTime().toFixed();
-	}
+    if (socketID) {
+        console.log("QR Code scanning already started, ID: " + socketID);
+        return;
+    }
+
+    const d = new Date();
+    socketID = d.getTime().toFixed();
 
     const valueParam = {
-            "ScanType": "Continuous",
-            "EANSupport": true,
-            "Preview": false,
-            "Timeout": 30,
-            "Brightness": 25,
-            "WhiteLEDIntensity": 55,
-            "RedLEDOnOFF": true,
-            "SDKLogsState": false,
-            "MirrorFlip": false,
-            "ScanInterval": 5,
-            "DefaultPreview": false
-        }
-    
-	var startCommand = {
+        "ScanType": "Continuous",
+        "EANSupport": true,
+        "Preview": false,
+        "Timeout": 30,
+        "Brightness": 25,
+        "WhiteLEDIntensity": 55,
+        "RedLEDOnOFF": true,
+        "SDKLogsState": false,
+        "MirrorFlip": false,
+        "ScanInterval": 5,
+        "DefaultPreview": false
+    };
+
+    const startCommand = {
         ID: socketID,
         Event: "Start",
         Param: valueParam
-      }
+    };
 
-
-	console.log(`Sending Start Continuous REQUEST : ${JSON.stringify(startCommand)}`)
-	try {
-		qrWebSocket.send(JSON.stringify(startCommand));
-	}
-	catch (err) {
-		console.error('ERROR : Websocket sending error !! Reseting Connection...')
-	}
-    isScanning = true;
+    console.log(`Sending Start REQUEST: ${JSON.stringify(startCommand)}`);
+    try {
+        qrWebSocket.send(JSON.stringify(startCommand));
+    } catch (err) {
+        console.error('ERROR: WebSocket sending error:', err);
+        handleScannerError();
+    }
 }
 
 function stopScanning() {
-    if (!qrWebSocket || !isScanning) return;
+    if (!qrWebSocket || !isScanning || !socketID) return;
 
     const stopCommand = {
-        "ID": socketID,
-        "Event": "Stop"
+        ID: socketID,
+        Event: "Stop"
     };
 
     console.log("Stopping QR Code scanning", JSON.stringify(stopCommand));
-	
-    qrWebSocket.send(stopCommand);
-	qrWebSocket.close();
-	socketID = null;
-    isScanning = false;
+    try {
+        qrWebSocket.send(JSON.stringify(stopCommand));
+        qrWebSocket.close();
+        socketID = null;
+        isScanning = false;
+    } catch (err) {
+        console.error('ERROR: Failed to stop scanning:', err);
+    }
 }
 
 function handleQRMessage(data) {
     try {
         const message = JSON.parse(data);
         writeDebugInfo('Received QR message: ' + JSON.stringify(message));
-        console.log("Received QR message: " + JSON.stringify(message));
 
         if (currentPage != widgetPage) {
             console.log("Ignoring QR message, current page is not widget page");
             return;
         }
 
-        // Handle scan result
         if (message.Event === "Response") {
             const result = message.Result;
             
-            // Handle different command types
             switch (result?.Command) {
                 case "Start":
                     if (result.Status === "SUCCESS") {
@@ -1022,7 +1033,7 @@ function handleQRMessage(data) {
                         isScanning = true;
                     } else if (result.Status === "FAIL" || result.Status === "Error, In opening camera") {
                         writeDebugInfo("QR scanner failed to start: " + result.Message);
-                        isScanning = false;
+                        handleScannerError();
                     }
                     break;
                     
@@ -1034,7 +1045,7 @@ function handleQRMessage(data) {
                     break;
                     
                 case "DecodedText":
-					if (result.Format.includes("Error") || result.Text === "") break;
+                    if (result.Format?.includes("Error") || !result.Text || isProcessing) break;
                     const scannedData = result.Text;
                     inputValue = scannedData;
                     console.log("QR Code scanned, processing value: " + inputValue);
@@ -1042,15 +1053,32 @@ function handleQRMessage(data) {
                     confirmAppointmentId("qrcode");
                     break;
 
+                case "Config":
+                    console.log("Config update received:", result);
+                    break;
+
                 default:
-                    console.log("Event response: " + JSON.stringify(result));
-                    writeDebugInfo("Event response: " + JSON.stringify(result));
+                    console.log("Unknown command response:", result);
+                    writeDebugInfo("Unknown command response: " + JSON.stringify(result));
             }
         }
     } catch (error) {
         writeDebugInfo("Error processing QR message: " + error);
         console.error("Error processing QR message:", error);
     }
+}
+
+function handleScannerError() {
+    isScanning = false;
+    if (qrWebSocket && qrWebSocket.readyState === WebSocket.OPEN) {
+        stopScanning();
+    }
+    // Attempt to reconnect after a delay
+    setTimeout(() => {
+        if (!isScanning) {
+            initQRCodeReader();
+        }
+    }, 5000);
 }
 
 // -------------------------------------------------------------------------

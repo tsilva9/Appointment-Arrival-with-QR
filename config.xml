@@ -2,8 +2,8 @@
 <widget xmlns="http://www.w3.org/ns/widgets" xmlns:q="http://qmatic.com"
  		id="http://qmatic.com/widgets/appointarrivalqr"
  		version="7.3.59"
-        width="400"
-        height="400">
+        width="600"
+        height="600">
         
   <name>appointarrivalqr</name>
   <name xml:lang="en">Appointment Arrival Widget with QR</name>
