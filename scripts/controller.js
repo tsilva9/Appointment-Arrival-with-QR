@@ -127,7 +127,7 @@ var yearPlaceholder;
 var monthPlaceholder;
 var dayPlaceholder;
 var parentDoc = $(window.parent.document);
-var pageNotFound, pageTooEarly, pageTooLate, pageMultiple;
+var pageNotFound, pageTooEarly, pageTooLate, pageMultiple, pageQrcodeBusy;
 var selectedMonth="";
 var enteredAppointmentTime="";
 var enterAppTime="";
@@ -300,6 +300,7 @@ var controller = (function($) {
 			pageTooEarly = attribParser.getString('page.too.early','');
 			pageTooLate = attribParser.getString('page.too.late','');
 			pageMultiple = attribParser.getString('page.multiple','');			
+			pageQrcodeBusy = attribParser.getString('page.qrcode.busy','');
 			if (inputId != "") {
 				objInputId = $(parentDoc).find('div[id="' + inputId +'"]').get(0);
 				// Read the styling from the input field as set on the surface editor

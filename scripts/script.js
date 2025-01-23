@@ -145,6 +145,10 @@ function confirmAppointmentId(input){
 		inputType = input;
 	}
 
+	if (input == "qrcode" && pageQrcodeBusy && isProcessing) {
+		wwClient.switchHostPage(pageQrcodeBusy);
+	}
+
 	if(input == "dobKeyboard") {
 		enteredDOB = getInputDOB();
 	}
