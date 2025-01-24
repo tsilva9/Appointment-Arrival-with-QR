@@ -1,12 +1,13 @@
 var develop = false;
-var qrWebSocket = null;
-var isScanning = false;
-var isProcessing = false;
 
 function reset(){
 	inputValue = "";
 	scanAskTime = false;
-	processing = false;
+	 processing = false;
+	qrWebSocket = null;
+	isScanning = false;
+	isProcessing = false;
+
 	// Initialise the phone number with the value configured on the widget so people know they don't need to
 	// enter their country code if needed
 	// GP-3675
@@ -43,11 +44,6 @@ function reset(){
 	enterAppTimeState = false;
 	multipleAppointmentsFound = false;
 	showInput();
-	
-	// Restart scanning if it was stopped
-	if (qrWebSocket && !isScanning) {
-		startScanning();
-	}
 }
 
 function switchPageEvent (topic, publisherData, subscriberData){
@@ -69,6 +65,10 @@ function showText(message, inputType){
 		if (barcodeId != "") {
 			objBarcodeId.innerHTML = '<span class="text_single_element">' + message + '</span>';
 			wwClient.switchHostPage(barcodePage);
+		}
+		if (qrWebSocket != null) {
+			objBarcodeId.innerHTML = '<span class="text_single_element">' + message + '</span>';
+			wwClient.switchHostPage(qrcode);
 		}
 	}
 }
@@ -141,12 +141,8 @@ function confirmAppointmentId(input){
 	scanIdField = scanInputIdField;
 	var matchAppTime ="";
 	var now = new Date();
-	if (input == "barcode") {
+	if (input == "barcode" || input == "qrcode") {
 		inputType = input;
-	}
-
-	if (input == "qrcode" && pageQrcodeBusy && isProcessing) {
-		wwClient.switchHostPage(pageQrcodeBusy);
 	}
 
 	if(input == "dobKeyboard") {
@@ -168,7 +164,7 @@ function confirmAppointmentId(input){
 		}
 	}
 
-	if (inputValue.length > 1 && inputType === "barcode" ) {
+	if (inputValue.length > 1 && (inputType === "barcode" || inputType === "qrcode") ) {
 		// possible qr-codes:
 		// qrCodeCalculated: 	672341040
 		// Qwebbook:			672341040
@@ -262,7 +258,7 @@ function confirmAppointmentId(input){
 		inputValue = inputValue.slice(0, -4);
 	}
 
-	if (inputType === "barcode") {
+	if (inputType === "barcode" || inputType === "qrcode") {
 		// set to barcode id field just for this scan
 		idField = scanIdField;
 		if ( detectedString == "qca" ) {
@@ -412,7 +408,7 @@ function confirmAppointmentId(input){
 	writeDebugInfo("Number of found appointments = " + foundAppointments.length + ", idField: " + idField + ", detectedString: " + detectedString)
 
 	if (foundAppointments.length > 1){
-		if (currentPage == barcodePage) {
+		if (currentPage == barcodePage || currentPage == qrcode) {
 			// make sure we get back to the widgetPage if muiltiple appointments are found
 			doNotReset = true;
 			wwClient.switchHostPage(widgetPage);
@@ -421,7 +417,7 @@ function confirmAppointmentId(input){
 			// show the page to ask for the appointment time
 			// reset the input first in case you were entering the phone number beforehand
 			inputValue = "";
-			if(inputType == "barcode") {
+			if(inputType == "barcode" || inputType == "qrcode") {
 				scanAskTime = true; // scan done, so prepare to ask time
 			}
 
@@ -502,7 +498,6 @@ function confirmAppointmentId(input){
 	else if (foundAppointments.length == 1){
 		// check the status of the appointment
 		foundAppointment = foundAppointments[0];
-
 	}
 	else {
 		foundAppointment = null;
@@ -624,7 +619,7 @@ function confirmAppointmentId(input){
 				}
 			}
 			wwClient.switchHostPage(arrivedPage);
-			writeDebugInfo("Succesfully arrived appointment id : " + params.appointmentId + " on Unit: " + arriveUnitId);
+			writeDebugInfo("Successfully arrived appointment id : " + params.appointmentId + " on Unit: " + arriveUnitId);
 		} else {
 			wwClient.switchHostPage(pageNotFound);
 			writeDebugInfo("Could not arrive appointment id : " + params.appointmentId + " on Unit: " + arriveUnitId);
@@ -862,7 +857,7 @@ var keyReceived = "";
 
 function keyPressReceived() {
 	console.log("KeyPress Widget: " + widgetPage);
-	if (barcodeEnabled === true || currentPage == widgetPage || currentPage == barcodePage) {
+	if (barcodeEnabled === true || currentPage == widgetPage || currentPage == barcodePage || currentPage == qrcodePage || qrcodeEnabled === true) {
 		if (keyReceived.length === 1  && keyReceived != "#" && keyReceived != "*"){
 			addChar (keyReceived);
 		}
@@ -871,7 +866,11 @@ function keyPressReceived() {
 			confirmAppointmentByKeyBoard();
 		}
 		if (keyReceived.length > 1 ) {
-			barcodeScanned(keyReceived);
+			if (currentPage == qrcodePage) {
+				qrScanned(keyReceived);
+			} else {
+				barcodeScanned(keyReceived);
+			}
 		}
 	}
 	processing = false;
@@ -886,7 +885,11 @@ function keyEventReceived(evt){
 			keyReceived += charStr;
 		}
 		if(!processing && keyReceived.length > 1) {
-		barcodeProcessing();
+			if (qrcodeEnabled === true) {
+				qrCodeProcessing();
+			} else {
+				barcodeProcessing();
+			}
 		}
 		readBlock = setTimeout (keyPressReceived, 500);
 }
@@ -919,14 +922,19 @@ function barcodeScanned(valFromScan) {
 // -------------------------------------------------------------------------
 
 let socketID = null;
+let qrWebSocket = null;
+let isScanning = false;
+let isProcessing = false;
 
 function initQRCodeReader() {
-    qrWebSocket = new WebSocket('ws://127.0.0.1:7010/ScanAndDecode', 'decoder');
+	const d = new Date();
+    socketID = d.getTime().toFixed();
+    qrWebSocket = new WebSocket(`ws://127.0.0.1:7010/ScanAndDecode?ID=${socketID}`, 'decoder');
     
     qrWebSocket.addEventListener('open', () => {
         writeDebugInfo('QR Code WebSocket connection opened');
         console.log("Starting QR Code scanning");
-        startScanning();
+        startScanning(socketID);
     });
 
     qrWebSocket.addEventListener('message', (event) => {
@@ -959,28 +967,21 @@ function initQRCodeReader() {
     });
 }
 
-function startScanning() {
+function startScanning(socketID) {
     if (!qrWebSocket || isScanning) return;
-    if (socketID) {
-        console.log("QR Code scanning already started, ID: " + socketID);
-        return;
-    }
 
-    const d = new Date();
-    socketID = d.getTime().toFixed();
-
-    const valueParam = {
+	const valueParam = {
         "ScanType": "Continuous",
-        "EANSupport": true,
-        "Preview": false,
-        "Timeout": 30,
-        "Brightness": 25,
+		"EANSupport": true,
+		"Preview": false,
+		"DefaultPreview": false,
+		"ScanInterval": 5,
+		"RedLEDOnOFF": true,
+		"SDKLogsState": true,
+		"MirrorFlip": false,
+		"Timeout": 60,
+        "Brightness": 50,
         "WhiteLEDIntensity": 55,
-        "RedLEDOnOFF": true,
-        "SDKLogsState": false,
-        "MirrorFlip": false,
-        "ScanInterval": 5,
-        "DefaultPreview": false
     };
 
     const startCommand = {
@@ -989,12 +990,20 @@ function startScanning() {
         Param: valueParam
     };
 
-    console.log(`Sending Start REQUEST: ${JSON.stringify(startCommand)}`);
-    try {
+	try {
+		console.log(`Sending Start REQUEST: ${JSON.stringify(startCommand)}`);
         qrWebSocket.send(JSON.stringify(startCommand));
+
     } catch (err) {
         console.error('ERROR: WebSocket sending error:', err);
         handleScannerError();
+    }
+}
+
+function qrCodeProcessing() {
+    if (qrWebSocket !== null || currentPage == widgetPage) {
+        wwClient.switchHostPage(qrcode);
+        isProcessing = true;
     }
 }
 
@@ -1052,9 +1061,12 @@ function handleQRMessage(data) {
                     if (result.Format?.includes("Error") || !result.Text || isProcessing) break;
                     const scannedData = result.Text;
                     inputValue = scannedData;
+					objInputId.innerHTML = "";
                     console.log("QR Code scanned, processing value: " + inputValue);
                     writeDebugInfo("QR Code scanned, processing value: " + inputValue);
                     confirmAppointmentId("qrcode");
+                    
+                    isProcessing = false;
                     break;
 
                 case "Config":

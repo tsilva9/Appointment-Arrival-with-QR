@@ -178,8 +178,6 @@ var zoneNames = ["Zone 1", "Zone 2", "Zone 3", "Zone 4", "Zone 5", "Zone 6", "Zo
 var zoneElement= new Array();
 var zoneElementObj= new Array();
 
-var qrWebSocket = null;
-var isScanning = false;
 
 function sendUnitEvent(uid, msg) {		
 	var params = {
@@ -293,14 +291,13 @@ var controller = (function($) {
 			barcodePage = attribParser.getString('page.barcode.busy', '');	
 
 			qrcodeEnabled = attribParser.getBoolean('qrcode.enabled', true);							
-
-
+			qrcodePage = attribParser.getString('page.qrcode.busy','');
 
 			pageNotFound = attribParser.getString('page.not.found','');
 			pageTooEarly = attribParser.getString('page.too.early','');
 			pageTooLate = attribParser.getString('page.too.late','');
 			pageMultiple = attribParser.getString('page.multiple','');			
-			pageQrcodeBusy = attribParser.getString('page.qrcode.busy','');
+			
 			if (inputId != "") {
 				objInputId = $(parentDoc).find('div[id="' + inputId +'"]').get(0);
 				// Read the styling from the input field as set on the surface editor
