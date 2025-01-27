@@ -177,7 +177,7 @@ var zoneDelays = [0,0,0,0,0,0,0,0,0,0]
 var zoneNames = ["Zone 1", "Zone 2", "Zone 3", "Zone 4", "Zone 5", "Zone 6", "Zone 7", "Zone 8", "Zone 9", "Zone 10"]
 var zoneElement= new Array();
 var zoneElementObj= new Array();
-
+var socketQrId = null;
 
 function sendUnitEvent(uid, msg) {		
 	var params = {
@@ -315,6 +315,9 @@ var controller = (function($) {
 				originalMessageText = objMessageId.innerHTML;
 			}
 			if (barcodeId != "") {
+				objAddButtonId = $(parentDoc).find('div[id="' + addBtnId +'"]').get(0);	
+			}
+			if (socketQrId != "") {
 				objAddButtonId = $(parentDoc).find('div[id="' + addBtnId +'"]').get(0);	
 			}
 			if (yearId != "") {
@@ -472,7 +475,7 @@ var controller = (function($) {
 			wwClient.subscribe( 'com.qmatic.qp.topic.operation.CLEAR_CACHE',appCacheClear );
 
 			parent.addEventListener('keypress', function(evt) {
-				if(barcodeEnabled) {
+				if(barcodeEnabled || qrcodeEnabled) {
 				evt.stopImmediatePropagation();
 				evt.preventDefault();
 				}

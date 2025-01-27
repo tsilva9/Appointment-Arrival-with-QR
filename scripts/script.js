@@ -3,7 +3,7 @@ var develop = false;
 function reset(){
 	inputValue = "";
 	scanAskTime = false;
-	 processing = false;
+	processing = false;
 	qrWebSocket = null;
 	isScanning = false;
 	isProcessing = false;
@@ -921,25 +921,26 @@ function barcodeScanned(valFromScan) {
 // ------------------------------- QR code ---------------------------------
 // -------------------------------------------------------------------------
 
-let socketID = null;
 let qrWebSocket = null;
 let isScanning = false;
 let isProcessing = false;
 
 function initQRCodeReader() {
 	const d = new Date();
-    socketID = d.getTime().toFixed();
-    qrWebSocket = new WebSocket(`ws://127.0.0.1:7010/ScanAndDecode?ID=${socketID}`, 'decoder');
+    socketQrId = d.getTime().toFixed();
+    qrWebSocket = new WebSocket(`ws://127.0.0.1:7010/ScanAndDecode?ID=${socketQrId}`, 'decoder');
     
     qrWebSocket.addEventListener('open', () => {
         writeDebugInfo('QR Code WebSocket connection opened');
         console.log("Starting QR Code scanning");
-        startScanning(socketID);
+        startScanning(socketQrId);
     });
 
     qrWebSocket.addEventListener('message', (event) => {
         console.log("Received QR Code message");
-        handleQRMessage(event.data);
+		if (!(event.data instanceof Blob)) {
+			handleQRMessage(event.data);
+		}
     });
 
     qrWebSocket.addEventListener('close', () => {
@@ -950,7 +951,7 @@ function initQRCodeReader() {
             qrWebSocket = null;
         }
         isScanning = false;
-        socketID = null;
+        socketQrId = null;
     });
 
 
@@ -967,7 +968,7 @@ function initQRCodeReader() {
     });
 }
 
-function startScanning(socketID) {
+function startScanning(socketQrId) {
     if (!qrWebSocket || isScanning) return;
 
 	const valueParam = {
@@ -985,7 +986,7 @@ function startScanning(socketID) {
     };
 
     const startCommand = {
-        ID: socketID,
+        ID: socketQrId,
         Event: "Start",
         Param: valueParam
     };
@@ -1008,10 +1009,10 @@ function qrCodeProcessing() {
 }
 
 function stopScanning() {
-    if (!qrWebSocket || !isScanning || !socketID) return;
+    if (!qrWebSocket || !isScanning || !socketQrId) return;
 
     const stopCommand = {
-        ID: socketID,
+        ID: socketQrId,
         Event: "Stop"
     };
 
@@ -1019,7 +1020,7 @@ function stopScanning() {
     try {
         qrWebSocket.send(JSON.stringify(stopCommand));
         qrWebSocket.close();
-        socketID = null;
+        socketQrId = null;
         isScanning = false;
     } catch (err) {
         console.error('ERROR: Failed to stop scanning:', err);
@@ -1187,3 +1188,10 @@ function sendGetWaitingAreaCommand(serv){
 	}
 	return zone;
 }
+
+
+// Indirizzo IPv4. . . . . . . . . . . . : 192.168.39.121
+// Subnet mask . . . . . . . . . . . . . : 255.255.255.0
+// Gateway predefinito . . . . . . . . . : 192.168.39.1
+// 127.0.0.1:7010
+// 192.168.39.121:8090/BIXOLON
