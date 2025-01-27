@@ -164,7 +164,7 @@ function confirmAppointmentId(input){
 		}
 	}
 
-	if (inputValue.length > 1 && (inputType === "barcode" || inputType === "qrcode") ) {
+	if (inputValue.length > 1 && (inputType === "barcode" || inputType === "qrcode" ) ) {
 		// possible qr-codes:
 		// qrCodeCalculated: 	672341040
 		// Qwebbook:			672341040
@@ -1030,12 +1030,8 @@ function stopScanning() {
 function handleQRMessage(data) {
     try {
         const message = JSON.parse(data);
-        writeDebugInfo('Received QR message: ' + JSON.stringify(message));
 
-        if (currentPage != widgetPage) {
-            console.log("Ignoring QR message, current page is not widget page");
-            return;
-        }
+        if (currentPage != widgetPage) return;
 
         if (message.Event === "Response") {
             const result = message.Result;
@@ -1188,10 +1184,3 @@ function sendGetWaitingAreaCommand(serv){
 	}
 	return zone;
 }
-
-
-// Indirizzo IPv4. . . . . . . . . . . . : 192.168.39.121
-// Subnet mask . . . . . . . . . . . . . : 255.255.255.0
-// Gateway predefinito . . . . . . . . . : 192.168.39.1
-// 127.0.0.1:7010
-// 192.168.39.121:8090/BIXOLON
