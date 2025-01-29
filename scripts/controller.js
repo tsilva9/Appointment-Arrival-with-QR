@@ -86,8 +86,6 @@ let appCacheData = {
 
 let scanAskTime = false;
 let doNotReset = false;
-
-
 let socketQrId = null;
 
 const qrcodeConfig = {
