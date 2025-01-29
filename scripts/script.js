@@ -1,3 +1,7 @@
+let develop = false; // or true if you want debug logging
+ // or set to appropriate field name
+let readBlock = null;
+
 function reset(){
 	inputValue = "";
 	scanAskTime = false;
@@ -809,18 +813,12 @@ function showInput() {
 		}
 	}
 
-	if (intro8){
-		html = '<span class="text_single_element"><input value="' + maskedValue + '" id="customer-mask-input" style="'+origInputStyle + '"></span>';
-		monthHtml = '<span class="text_single_element"><input value="' + monthValue + '" id="customer-mm-input" style="'+origInputStyle + '"></span>';
-		dayHtml = '<span class="text_single_element"><input value="' + dayValue + '" id="customer-dd-input" style="'+origInputStyle + '"></span>';
-		yearHtml = '<span class="text_single_element"><input value="' + yearValue + '" id="customer-yy-input" style="'+origInputStyle + '"></span>';
 
-	} else {
-		html = '<span class="text_single_element"><input value="' + maskedValue + '" placeholder="'+placeHolder+'" id="customer-mask-input" style="'+origInputStyle + '"></span>';
-		monthHtml = '<span class="text_single_element"><input value="' + monthValue + '" placeholder="'+monthPlaceholder+'" id="customer-mm-input" style="'+origMonthStyle + '"></span>';
-		dayHtml = '<span class="text_single_element"><input value="' + dayValue + '" placeholder="'+dayPlaceholder+'" id="customer-dd-input" style="'+origDayStyle + '"></span>';
-		yearHtml = '<span class="text_single_element"><input value="' + yearValue + '" placeholder="'+yearPlaceholder+'" id="customer-yy-input" style="'+origYearStyle + '"></span>';
-	}
+	html = '<span class="text_single_element"><input value="' + maskedValue + '" placeholder="'+placeHolder+'" id="customer-mask-input" style="'+origInputStyle + '"></span>';
+	monthHtml = '<span class="text_single_element"><input value="' + monthValue + '" placeholder="'+monthPlaceholder+'" id="customer-mm-input" style="'+origMonthStyle + '"></span>';
+	dayHtml = '<span class="text_single_element"><input value="' + dayValue + '" placeholder="'+dayPlaceholder+'" id="customer-dd-input" style="'+origDayStyle + '"></span>';
+	yearHtml = '<span class="text_single_element"><input value="' + yearValue + '" placeholder="'+yearPlaceholder+'" id="customer-yy-input" style="'+origYearStyle + '"></span>';
+	
 
 	if (inputId != ""){
 		objInputId.innerHTML = html;
@@ -839,12 +837,12 @@ function showInput() {
 // ---------------------------------------------------------------------
 // -------------------------------barcodescanner------------------------------
 // ---------------------------------------------------------------------
-var keyReceived = "";
+let keyReceived = "";
 
 function keyPressReceived() {
 	if (barcodeEnabled === true || currentPage == widgetPage || currentPage == barcodePage || currentPage == qrcodePage || qrcodeEnabled === true) {
 		if (keyReceived.length === 1  && keyReceived != "#" && keyReceived != "*"){
-			addChar (keyReceived);
+			addChar(keyReceived);
 		}
 
 		if (keyReceived.length === 1  && keyReceived == "#" && currentPage == widgetPage){
@@ -887,10 +885,9 @@ function barcodeProcessing() {
 }
 
 function barcodeScanned(valFromScan) {
-	var val = valFromScan;
 	isProcessing = false;
 	writeDebugInfo("Arrival Widget: received value from div - " + valFromScan);
-	var tempInputValue = val.substring(barcodeStart, (barcodeEnd == -1 ? val.length : barcodeEnd));
+	const tempInputValue = valFromScan.substring(barcodeStart, (barcodeEnd == -1 ? valFromScan.length : barcodeEnd));
 	if (tempInputValue.length > 1) {
 		objInputId.innerHTML = "";
 		inputValue = tempInputValue;

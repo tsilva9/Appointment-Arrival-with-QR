@@ -40,7 +40,7 @@ let yearPlaceholder, monthPlaceholder, dayPlaceholder;
 
 const parentDoc = $(window.parent.document);
 
-let pageNotFound, pageTooEarly, pageTooLate, pageMultiple;
+let pageNotFound, pageTooEarly, pageTooLate, pageMultiple, qrcodePage;
 
 let selectedMonth = "";
 let enteredAppointmentTime = "";
@@ -71,7 +71,7 @@ let agentDebug = false;
 let EVENT_NAME = "LOG_FROM_WIDGET";
 let debugUnit = "";
 
-let ticketElementObj = [];
+
 let arriveFirst = false;
 
 let appCacheData = {
@@ -87,6 +87,7 @@ let appCacheData = {
 let scanAskTime = false;
 let doNotReset = false;
 let socketQrId = null;
+let barcodeId = "";
 
 const qrcodeConfig = {
     brightness: 50,
@@ -126,6 +127,15 @@ const zoneConfig = {
     elements: [],
     elementObjects: []
 };
+
+let ticketElement = "";
+let ticketElementObj = [];
+let language = "";
+let name = "";
+let startPage = "";
+let loadBalanceUnitNumId = "";
+let unitName = "";
+let customTicketIdField = "";
 
 function sendUnitEvent(uid, msg) {		
 	var params = {
@@ -172,6 +182,8 @@ var controller = (function($) {
 		onLoaded : function(configuration) {
 			var attr = configuration.attributes,
 			attribParser = new qmatic.webwidget.AttributeParser(attr || {});
+			customTicketIdField = attribParser.getString('custom.ticketid.field', '');
+			ticketNbrIsIdField = attribParser.getBoolean('ticketid.isidfield', false);
 			textFontObj = parseFontInfo(attribParser.getString('text.font', 'Arial;36px;normal;normal'), 'object'),
 			textFontString = parseFontInfo(attribParser.getString('text.font', 'Arial;36px;normal;normal'), 'string'),
 			textColor = attribParser.getString('text.color', '#000000'),
@@ -302,7 +314,6 @@ var controller = (function($) {
 				phoneValidationOriginalMessageText = objPhoneValidationMsgId.innerHTML;
 			}
 
-			ticketNbrIsIdField = attribParser.getBoolean('ticketid.isidfield', false);
 			id4lastdigitsValidationMsgId = attribParser.getString('id4lastdigits.validationMsgId', '');
 			if (id4lastdigitsValidationMsgId != "" ){
 				objId4lastdigitsValidationMsgId = $(parentDoc).find('div[id="' + id4lastdigitsValidationMsgId +'"]').get(0);	
@@ -375,7 +386,7 @@ var controller = (function($) {
 			for (var u = 0; u < units.length; u++){
                 unitName = units[u].unitId;
 				if(unitName.split(":")[1] === "waitingroombalancer"){
-					loadBalanceUnitNumId = units[u].id;
+					zoneConfig.loadBalanceUnitId = units[u].id;
 					getZoneSettings();
 				}
 		
