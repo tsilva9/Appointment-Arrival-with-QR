@@ -65,7 +65,7 @@ function showText(message, inputType){
 		}
 		if (qrWebSocket != null) {
 			objBarcodeId.innerHTML = '<span class="text_single_element">' + message + '</span>';
-			wwClient.switchHostPage(qrcode);
+			wwClient.switchHostPage(qrcodePage);
 		}
 	}
 }
@@ -162,12 +162,6 @@ function confirmAppointmentId(input){
 	}
 
 	if (inputValue.length > 1 && (inputType === "barcode" || inputType === "qrcode" ) ) {
-		// possible qr-codes:
-		// qrCodeCalculated: 	672341040
-		// Qwebbook:			672341040
-		// qrCodeExternal:		67234
-		// qrCodeInternalId: 	{"appointment_id":"67234","branch_name":"Branch 001","branch_id":"1","appointment_date":"2016-11-24T10:40:00"}
-		// QCA:{"appointment_id":"f19a61af-3762-40f3-a674-6b93710d40e2","appointment_date":"2022-07-01T11:00:00Z","branch_id":"5368f91b-4cfe-41d1-897c-ccecefb74699","branch_name":"SmartCity_Center"}
 		idField = "QWebBookId";
 
 		// only verify the externalId to figure out what is in it,if it comes from the scanner
@@ -405,7 +399,7 @@ function confirmAppointmentId(input){
 	writeDebugInfo("Number of found appointments = " + foundAppointments.length + ", idField: " + idField + ", detectedString: " + detectedString)
 
 	if (foundAppointments.length > 1){
-		if (currentPage == barcodePage || currentPage == qrcode) {
+		if (currentPage == barcodePage || currentPage == qrcodePage) {
 			// make sure we get back to the widgetPage if muiltiple appointments are found
 			doNotReset = true;
 			wwClient.switchHostPage(widgetPage);
@@ -1155,11 +1149,11 @@ function fetchAppointments() {
 }
 
 function writeDebugInfo(msg) {
-	msg =  unitId + "(" + version +"): " + msg
-	if (develop == true) {
+	msg =  unitId + "(" + (version ? version : "--") +"): " + msg
+	if (develop) {
 		qmatic.webwidget.client.logInfo(msg);
 	} else {
-		if (agentDebug == true) {
+		if (agentDebug) {
 			sendUnitEvent(debugUnit, msg);
 		}
 	}
