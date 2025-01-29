@@ -157,14 +157,13 @@ var controller = (function($) {
 	function getZoneSettings(){
 		const zoneVar = wwRest.getGlobalVariable("waitingAreaSettings_" + branchId);
 		if (zoneVar != undefined) {
-			zoneVar = JSON.parse(zoneVar.value);
-			for (var z = 0; z < zoneVar.length; z++){
-				const pos = zoneVar[z].id-1;
+			const zoneSettings = JSON.parse(zoneVar.value);
+			for (var z = 0; z < zoneSettings.length; z++) {
+				const pos = zoneSettings[z].id - 1;
 				if (pos > -1) {
-					zoneConfig.delays[pos] = zoneVar[z].walkTime;
-					zoneConfig.names[pos] = zoneVar[z].displayName;
+					zoneConfig.delays[pos] = zoneSettings[z].walkTime;
+					zoneConfig.names[pos] = zoneSettings[z].displayName;
 				}
-				
 			}
 		}
 	}
@@ -229,11 +228,8 @@ var controller = (function($) {
 			zoneConfig.elements = (attribParser.getString("zone.element", "")).split(",");
 			
 			for (var a = 0; a < zoneConfig.elements.length; a++) {
-				if ( window.parent.document.getElementById( zoneConfig.elements[a] ) ){
-					zoneConfig.elements[a] = $( parentMain ).find( 'div[id="' + zoneConfig.elements[a] + '"]' );
-				} else {
-					zoneConfig.elements[a] = null;
-				}
+				const element = $(parentMain).find('div[id="' + zoneConfig.elements[a] + '"]');
+				zoneConfig.elementObjects[a] = element.length ? element : null;
 			}
 			
 			barcodeEnabled = attribParser.getBoolean('barcode.enabled', false);		
@@ -468,13 +464,13 @@ var controller = (function($) {
 		onLoadError : function(message) {
 			$('body').html('<p>Widget load error: ' + message + '</p>');
 		},
-		selectMonth: function (month){
-			selectedMonth = month;
+		selectMonth: function (month) {
+			appointmentState.selectedMonth = month;
 			$("#dobPageMonth").hide();
 			$("#dobPageDay").show();
 		},
-		selectDay: function (day){					
-			enteredDOB = selectedMonth+"-"+day;
+		selectDay: function (day) {
+			appointmentState.dateOfBirth = appointmentState.selectedMonth + "-" + day;
 			confirmAppointmentId("");
 		}
 	};

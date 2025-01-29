@@ -38,8 +38,12 @@ function reset(){
 	if (messageId != "" ){
 		objMessageId.innerHTML = originalMessageText;
 	}
-	enterAppTimeState = false;
-	multipleAppointmentsFound = false;
+	appointmentState.enterAppTimeState = false;
+	appointmentState.multipleAppointmentsFound = false;
+	appointmentState.isEnteringTime = false;
+	appointmentState.hasMultipleAppointments = false;
+	appointmentState.dateOfBirth = "";
+	appointmentState.phoneNumber = "";
 	showInput();
 }
 
@@ -71,13 +75,13 @@ function showText(message, inputType){
 }
 
 function showPhoneErrorValidationText(textToShow) {
-	if (validationConfig.phone.element !== null) {
+	if (validationConfig.phone.element) {
 		validationConfig.phone.element.innerHTML = '<span class="text_single_element">' + textToShow + '</span>';
 	}
 }
 
 function showIdlast4digitsErrorValidationText(textToShow) {
-	if (validationConfig.idLastDigits.element !== null) {
+	if (validationConfig.idLastDigits.element) {
 		validationConfig.idLastDigits.element.innerHTML = '<span class="text_single_element">' + textToShow + '</span>';
 	}
 }
@@ -228,13 +232,13 @@ function confirmAppointmentId(input){
 		}
 
 		// validate the input if it is phone
-		if (idField == "phone" && enterAppTimeState == false) {
+		if (idField == "phone" && appointmentState.enterAppTimeState == false) {
 			if (inputValue.length < 5) {
 				// show validatin error msg
 				showPhoneErrorValidationText(phoneValidationOriginalMessageText);
 				return;
 			}
-		} else if (idField == "id4lastdigits" && enterAppTimeState == false) {
+		} else if (idField == "id4lastdigits" && appointmentState.enterAppTimeState == false) {
 			if (inputValue.length > 4) {
 				// show validation error msg
 				showIdlast4digitsErrorValidationText(id4lastdigitsValidationOriginalMessageText);
@@ -331,7 +335,7 @@ function confirmAppointmentId(input){
 			if (appointmentDate.toDateString() === today.toDateString() && todaysAppointments[i].status == "CREATED"){
 				if (todaysAppointments[i].customers.length > 0) {
 					customer = todaysAppointments[i].customers[0];
-					if (!enterAppTimeState) enteredPhoneNumber = inputValue;
+					if (!appointmentState.enterAppTimeState) enteredPhoneNumber = inputValue;
 					if (idField == "phone") {
 						if (customer.properties.phoneNumber == enteredPhoneNumber){
 							foundAppointments.push(todaysAppointments[i]);
@@ -360,7 +364,7 @@ function confirmAppointmentId(input){
 						}
 					}
 					else if (idField == "identificationNumber"){
-						if (!enterAppTimeState)
+						if (!appointmentState.enterAppTimeState)
 							identificationNumber = inputValue;
 						if (customer.properties.identificationNumber == identificationNumber){
 							foundAppointments.push(todaysAppointments[i]);
@@ -404,7 +408,7 @@ function confirmAppointmentId(input){
 			doNotReset = true;
 			wwClient.switchHostPage(widgetPage);
 		}
-		if (!arriveFirst && !enterAppTimeState){
+		if (!arriveFirst && !appointmentState.enterAppTimeState){
 			// show the page to ask for the appointment time
 			// reset the input first in case you were entering the phone number beforehand
 			inputValue = "";
@@ -416,9 +420,9 @@ function confirmAppointmentId(input){
 			$("#dobPageMonth").hide();
 			$("#dobPageDay").hide();
 			if (messageId != "" ){
-				objMessageId.innerHTML = '<span class="text_single_element">' + enterAppTime + '</span>';
+				objMessageId.innerHTML = '<span class="text_single_element">' + appointmentState.timePrompt + '</span>';
 			}
-			enterAppTimeState = true;
+			appointmentState.enterAppTimeState = true;
 			showInput();
 			$(objAddButtonId).show();
 			writeDebugInfo("Multiple appointments found requesting additional input");
@@ -428,15 +432,15 @@ function confirmAppointmentId(input){
 			matchingAppointments = [];
 			if (!arriveFirst) {
 				// find the appointment with the entered appointment time in the list of found appointments
-				enteredAppointmentTime = inputValue;
+				appointmentState.enteredTime = inputValue;
 			}
 
 			for (var i=0;i<foundAppointments.length;i++){
 				startTime = foundAppointments[i].startTime.replace(/\-/g,'\/').replace(/[T|Z]/g,' ');
 				appointmentDate = new Date(startTime);
 				if (!arriveFirst) {
-					if (appointmentDate.getHours() == parseInt(enteredAppointmentTime.substring(0,2),10)
-					&& appointmentDate.getMinutes() == parseInt(enteredAppointmentTime.substring(3,5),10)){
+					if (appointmentDate.getHours() == parseInt(appointmentState.enteredTime.substring(0,2),10)
+					&& appointmentDate.getMinutes() == parseInt(appointmentState.enteredTime.substring(3,5),10)){
 						matchingAppointments.push(foundAppointments[i]);
 					}
 				} else {
@@ -477,8 +481,8 @@ function confirmAppointmentId(input){
 					}
 					currentCustomer = thisCustomer;
 				}
-				multipleAppointmentsFound = true;
-				enterAppTimeState  = false;
+				appointmentState.hasMultipleAppointments = true;
+				appointmentState.enterAppTimeState  = false;
 			}
 			else {
 				writeDebugInfo("Final, no appointment found");
@@ -610,14 +614,14 @@ function confirmAppointmentId(input){
 		}
 	}
 	else {
-		if (multipleAppointmentsFound){
+		if (appointmentState.hasMultipleAppointments){
 			// Even after having asked for the appointment time, we still have multiple appointments.
 			wwClient.switchHostPage(pageMultiple);
 			// resetting for the next attempt
-			multipleAppointmentsFound = false;
+			appointmentState.hasMultipleAppointments = false;
 			writeDebugInfo("Even after having asked for the appointment time, we still have multiple appointments.");
 		}
-		else if (!enterAppTimeState){
+		else if (!appointmentState.enterAppTimeState){
 			// this means we have already asked for the appointment time, but haven't found an appointment with the entered time
 			// resetting for the next attempt
 			writeDebugInfo("Final, no appointment found");
@@ -663,7 +667,7 @@ function getAppointmentsByETerminId(eTerminId) {
 // ---------------------------------------------------------------------
 
 function addChar(character) {
-	if (enterAppTimeState){
+	if (appointmentState.enterAppTimeState){
 		if (inputValue.length < 5){
 			inputValue += character;
 		}
@@ -696,7 +700,7 @@ function showInput() {
 
 	showPhoneErrorValidationText("");
 	showIdlast4digitsErrorValidationText("");
-	if(enterAppTimeState){
+	if(appointmentState.enterAppTimeState){
 		placeHolder="hh:mm";
 		maskedValue = inputValue;
 	}
@@ -716,7 +720,7 @@ function showInput() {
 	// date of birth keypad input modification
 	if(inputIdField == "dob" && dateOfBirthInputType == "keyboard") {
 
-		if(!enterAppTimeState) {
+		if(!appointmentState.enterAppTimeState) {
 			$(objMonthId).show();
 			$(objDayId).show();
 			$(objYearId).show();
@@ -1164,11 +1168,21 @@ function sendGetWaitingAreaCommand(serv) {
     params.name = "CUSTOM_GET_WAITINGAREA";
     params.type = "CFM";
     params.parameters = {"serviceId": serv, "serviceType": "appointment"};
-    zone = "";
-    cmdResult = customUnitCommand(zoneConfig.loadBalanceUnitId, params);
-    if (cmdResult != undefined && cmdResult != null) {
-        if (cmdResult.result != undefined) {
-            zone = cmdResult.result
+    let zone = "";
+    
+    const cmdResult = customUnitCommand(zoneConfig.loadBalanceUnitId, params);
+    if (cmdResult?.result) {
+        zone = cmdResult.result;
+        
+        // Update zone elements with new zone name
+        const zoneIndex = parseInt(zone, 10) - 1;
+        if (zoneIndex >= 0 && zoneIndex < zoneConfig.elementObjects.length) {
+            const zoneName = zoneConfig.names[zoneIndex];
+            zoneConfig.elementObjects.forEach(element => {
+                if (element) {
+                    element.html('<span class="text_single_element">' + zoneName + '</span>');
+                }
+            });
         }
     }
     return zone;
