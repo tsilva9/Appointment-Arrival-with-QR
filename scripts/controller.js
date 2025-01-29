@@ -1,10 +1,7 @@
-// version and configuration letants
 let version = "--";
 
-// Branch and unit configuration
 let branchId = -1;
 let browserOpera = navigator.userAgent.toLowerCase().indexOf('opera') > -1;
-let barcodeId;
 let idField = "";
 let tempIdField = "";
 let inputIdField = "";
@@ -12,63 +9,39 @@ let dateOfBirthInputType = "";
 let dateOfBirthInputFormat = "";
 let unitId = -1;
 
-// Time window configuration
-let DEFAULT_MINUTES_EARLY = 15;
-let DEFAULT_MINUTES_LATE = 0;
-let minutesEarly = DEFAULT_MINUTES_EARLY;
-let minutesLate = DEFAULT_MINUTES_LATE;
+let minutesEarly = 15;
+let minutesLate = 0;
 
-// Page and element IDs
 let arrivedPage = "";
 let addBtnId = "";
 let inputId = "";
 let messageId = "";
-let dayId = "";
 let monthId = "";
 
-// Client references
-let wwClient = qmatic.webwidget.client;
-let wwRest = qmatic.connector.client;
-let parentMain = $(window.parent.document);
+const wwClient = qmatic.webwidget.client;
+const wwRest = qmatic.connector.client;
+const parentMain = $(window.parent.document);
 
-// Input state
 let inputValue = "";
 let yearValue = "";
 let monthValue = "";
 let dayValue = "";
 let maskedInputValue = "";
-let startPage = "";
 let widgetPage = "";
 let currentPage = "";
-let scanIdField = "";
 let scanInputIdField = "";
 
-// Feature flags
 let barcodeEnabled = false;
-let barcodePage = "";
-let timeoutId = 0;
 let maxInput = 15;
 let vPrinterId = 0;
-let appointmentCacheTime = 0;
 
-// DOM element references
-let objInputId;
-let objMessageId;
-let objBarcodeId;
-let objAddButtonId;
-let objYearId;
-let objMonthId;
-let objDayId;
-let yearPlaceholder;
-let monthPlaceholder;
-let dayPlaceholder;
+let objInputId, objMessageId, objAddButtonId, objYearId, objMonthId, objDayId;
+let yearPlaceholder, monthPlaceholder, dayPlaceholder;
 
-let parentDoc = $(window.parent.document);
+const parentDoc = $(window.parent.document);
 
-// Page references
-let pageNotFound, pageTooEarly, pageTooLate, pageMultiple, pageQrcodeBusy;
+let pageNotFound, pageTooEarly, pageTooLate, pageMultiple;
 
-// State variables
 let selectedMonth = "";
 let enteredAppointmentTime = "";
 let enterAppTime = "";
@@ -76,49 +49,31 @@ let enterAppTimeState = false;
 let multipleAppointmentsFound = false;
 let enteredDOB = "";
 let enteredPhoneNumber = "";
-let originalTextInMessage = "";
-let enteredCardNumber = "";
-
-// Style references
-let textFontObj, textFontString, textColor, keyBgColor;
-let origInputStyle;
-let origYearStyle;
-let origMonthStyle;
-let origDayStyle;
-
-// Custom configuration
-let customTicketIdField = "";
-let barcodeStart, barcodeEnd;
-let intro8 = false;
-let maskInput;
-let branchList = [];
+let originalMessageText = "";
 let phonePrefix = "";
 let phoneLastDigits = 5;
 
-// Validation configuration
+let textFontObj, textFontString, textColor, keyBgColor, origInputStyle, origYearStyle, origMonthStyle, origDayStyle;
+
+let barcodeStart, barcodeEnd;
+let maskInput;
+let branchList = [];
+let phonePrefixShow = true;
 let phoneValidationMsgId = "";
 let objPhoneValidationMsgId;
 let phoneValidationOriginalMessageText = "";
 let todaysAppointments = [];
-
-// Ticket configuration
 let ticketNbrIsIdField = false;
 let id4lastdigitsValidationMsgId = "";
 let objId4lastdigitsValidationMsgId;
-let id4lastdigitsValidationOriginalMessageText = "";
 
-// Debug configuration
 let agentDebug = false;
 let EVENT_NAME = "LOG_FROM_WIDGET";
-let eventData = "";
 let debugUnit = "";
 
-// Element arrays
 let ticketElementObj = [];
 let arriveFirst = false;
-let phonePrefixShow = true;
 
-// Cache data
 let appCacheData = {
     custom1: "",
     custom2: "",
@@ -129,40 +84,50 @@ let appCacheData = {
     lang: ""
 };
 
-// Character mapping
-let toChar = {
-    35: '#',
-    42: '*',
-    48: '0',
-    49: '1',
-    50: '2',
-    51: '3',
-    52: '4',
-    53: '5',
-    54: '6',
-    55: '7',
-    56: '8',
-    57: '9'
-};
-
-// Scan state
 let scanAskTime = false;
 let doNotReset = false;
 
-// Load balancing configuration
-let loadBalanceUnitNumId = "";
-let zoneDelays = [0,0,0,0,0,0,0,0,0,0];
-let zoneNames = ["Zone 1", "Zone 2", "Zone 3", "Zone 4", "Zone 5", "Zone 6", "Zone 7", "Zone 8", "Zone 9", "Zone 10"];
-let zoneElement = [];
-let zoneElementObj = [];
+
 let socketQrId = null;
 
-// QR code configuration
-let qrcodeBrightness = 50;
-let qrcodeWhiteLEDIntensity = 55;
-let qrcodeMirror = false;
-let qrcodeRedLED = true;
-let qrcodeScanInterval = 5;
+const qrcodeConfig = {
+    brightness: 50,
+    whiteLEDIntensity: 55,
+    mirror: false,
+    redLED: true,
+    scanInterval: 5
+};
+
+const validationConfig = {
+    phone: {
+        messageId: "",
+        element: null,
+        originalText: ""
+    },
+    idLastDigits: {
+        messageId: "",
+        element: null,
+        originalText: ""
+    }
+};
+
+const appointmentState = {
+    selectedMonth: "",
+    enteredTime: "",
+    timePrompt: "",
+    isEnteringTime: false,
+    hasMultipleAppointments: false,
+    dateOfBirth: "",
+    phoneNumber: ""
+};
+
+const zoneConfig = {
+    loadBalanceUnitId: "",
+    delays: new Array(10).fill(0),
+    names: Array.from({length: 10}, (_, i) => `Zone ${i + 1}`),
+    elements: [],
+    elementObjects: []
+};
 
 function sendUnitEvent(uid, msg) {		
 	var params = {
@@ -173,7 +138,6 @@ function sendUnitEvent(uid, msg) {
 		var event =  {"M":"E","E":{"evnt":"","type":"APPLICATION", "prm":""}};
 		event.E.evnt = EVENT_NAME;	
 		event.E.prm = params; 
-		/* no need to include qevents_cometd.js, use the parent object */
 		parent.qevents.publish('/events/APPLICATION', event);
 	}	
 
@@ -199,20 +163,18 @@ var controller = (function($) {
 			for (var z = 0; z < zoneVar.length; z++){
 				pos = zoneVar[z].id-1;
 				if (pos > -1) {
-					zoneDelays[pos] = zoneVar[z].walkTime;
-					zoneNames[pos] = zoneVar[z].displayName;
+					zoneConfig.delays[pos] = zoneVar[z].walkTime;
+					zoneConfig.names[pos] = zoneVar[z].displayName;
 				}
 				
 			}
 		}
 	}
-	// Public contents of controller
+
 	return {
 		onLoaded : function(configuration) {
-			//-- gets the configuration information from the surface application --//
 			var attr = configuration.attributes,
 			attribParser = new qmatic.webwidget.AttributeParser(attr || {});
-			// Other text font and colour
 			textFontObj = parseFontInfo(attribParser.getString('text.font', 'Arial;36px;normal;normal'), 'object'),
 			textFontString = parseFontInfo(attribParser.getString('text.font', 'Arial;36px;normal;normal'), 'string'),
 			textColor = attribParser.getString('text.color', '#000000'),
@@ -220,9 +182,8 @@ var controller = (function($) {
 			keydelBgColor = attribParser.getString('keydel.bg.color', '#000000'),
 			btnImage = attribParser.getImageUrl('key.image', ''),
 			btnDelImage = attribParser.getImageUrl('keydel.image', ''),
-			//-- background --//
+
 			backgroundColor = attribParser.getString('bg.color', '');
-			
 			arrivedPage = attribParser.getString('page.name', '');					
 			
 			inputId = attribParser.getString('input.element', '');
@@ -240,7 +201,7 @@ var controller = (function($) {
 			arriveFirst = attribParser.getBoolean('arrive.first', false);
 			phonePrefixShow = attribParser.getBoolean('phone.prefix.show', true);
 			phoneLastDigits = attribParser.getInteger('phone.x.digits', '5');
-			//-- text variables --//			
+			
 			minutesEarly = attribParser.getInteger('early.minutes', '15');
 			minutesLate = attribParser.getInteger('late.minutes', '0');
 			inputIdField = attribParser.getString('id.field', '');
@@ -249,15 +210,14 @@ var controller = (function($) {
 			dateOfBirthInputType = attribParser.getString('dateOfBirthInputType', '');
 			dateOfBirthInputFormat = attribParser.getString('dateOfBirthInputFormat', '');
 
-			qrcodeBrightness = attribParser.getInteger("qrcode.brightness", 50);
-			qrcodeWhiteLEDIntensity = attribParser.getInteger("qrcode.whiteLEDIntensity", 55);
-			qrcodeMirror = attribParser.getBoolean("qrcode.mirror", false);
-			qrcodeRedLED = attribParser.getBoolean("qrcode.redled", true);
-			qrcodeScanInterval = attribParser.getInteger("qrcode.scan.interval", 5);
+			qrcodeConfig.brightness = attribParser.getInteger("qrcode.brightness", 50);
+			qrcodeConfig.whiteLEDIntensity = attribParser.getInteger("qrcode.whiteLEDIntensity", 55);
+			qrcodeConfig.mirror = attribParser.getBoolean("qrcode.mirror", false);
+			qrcodeConfig.redLED = attribParser.getBoolean("qrcode.redled", true);
+			qrcodeConfig.scanInterval = attribParser.getInteger("qrcode.scan.interval", 5);
 
 
 			vPrinterId = attribParser.getInteger("virtual.printer", 0);
-			//appointmentCacheTime = attribParser.getInteger("appointment.cache.time", 0); // if cache time next to be set to fecth appointments
 			ticketElement = (attribParser.getString("ticket.element", "")).split(",");
 
 			for (var a = 0; a < ticketElement.length; a++) {
@@ -279,8 +239,6 @@ var controller = (function($) {
 			}
 			
 			barcodeEnabled = attribParser.getBoolean('barcode.enabled', false);		
-			barcodePage = attribParser.getString('page.barcode.busy', '');	
-
 			qrcodeEnabled = attribParser.getBoolean('qrcode.enabled', true);							
 			qrcodePage = attribParser.getString('page.qrcode.busy','');
 
@@ -291,7 +249,6 @@ var controller = (function($) {
 			
 			if (inputId != "") {
 				objInputId = $(parentDoc).find('div[id="' + inputId +'"]').get(0);
-				// Read the styling from the input field as set on the surface editor
 				origInputStyle = "border:none;"
 				origInputStyle += "font-style:"+objInputId.style.getPropertyValue("font-style");
 				origInputStyle += ";font-size:"+objInputId.style.getPropertyValue("font-size");
@@ -358,7 +315,6 @@ var controller = (function($) {
 				id4lastdigitsValidationOriginalMessageText = objId4lastdigitsValidationMsgId.innerHTML;
 			}
 
-			customTicketIdField = attribParser.getString('custom.ticketid.field','');
 			barcodeStart = attribParser.getInteger('barcode.start',0);
 			barcodeEnd = attribParser.getInteger('barcode.end',-1);
 			
@@ -380,7 +336,6 @@ var controller = (function($) {
 				if (btnDelImage == "") {
 					btnDelImage = btnImage;
 				}
-				// image present, remove border etc
 				for (  var i = 1; i < 13; i++ ) {
 					$('#key'+i).css('background-color', 'transparent');
 					$('#key'+i).css('border', 'transparent');
@@ -413,13 +368,10 @@ var controller = (function($) {
 			}
 
 			if (wwClient.getUnitAndDeviceId().indexOf("SW_TP3115") >= 0){
-				intro8 = true;
 				$(".tableMonth").css('margin-left','2%');
 				$(".tableDay").css('margin-left','5%');
 				$("#numKeyboard").css('margin-left',"80px");
 			}	
-		
-			// set widget background colour
 			$('body:first').css('background-color', backgroundColor);
 						
 			branchId = qmatic.webwidget.client.getBranchId();	
@@ -428,7 +380,6 @@ var controller = (function($) {
 			var units = this.customGetUnits(branchId);
 			for (var u = 0; u < units.length; u++){
                 unitName = units[u].unitId;
-				//check for loadbalance unit
 				if(unitName.split(":")[1] === "waitingroombalancer"){
 					loadBalanceUnitNumId = units[u].id;
 					getZoneSettings();
@@ -451,13 +402,8 @@ var controller = (function($) {
 	
 			addClickToFunctionBtn();
 			getBranchList();
-			if (appointmentCacheTime > 0 && vPrinterId > 0) {
-				fetchAppointments(); // inital fetch appointments
-
-				// then fetch again every x ms
-				setInterval(function() {
-					fetchAppointments();
-				}, (appointmentCacheTime * 1000));
+			if (vPrinterId > 0) {
+				fetchAppointments(); 
 			}
 			startPage = parent.$('#pages').children(':visible');
 			startPage = startPage.attr('name');
@@ -499,22 +445,35 @@ var controller = (function($) {
 			});
 
 			idField = inputIdField;
-			tempIdField = idField; // store manual input id field as we want to set the id field back to default after scan
+			tempIdField = idField; 
 			reset();
 			checkDebugNeeded();
 
-			// Initialize QR code reader
 			if (qrcodeEnabled) {
 				initQRCodeReader();
 			}
-			
-			// Add cleanup on page unload
+
 			window.addEventListener('beforeunload', function() {
 				if (qrWebSocket) {
 					stopScanning();
 				}
 			});
 
+			validationConfig.phone.messageId = attribParser.getString('phone.validationMsgId', '');
+			validationConfig.phone.element = $(parentDoc).find('div[id="' + validationConfig.phone.messageId +'"]').get(0);
+			validationConfig.phone.originalText = validationConfig.phone.element ? validationConfig.phone.element.innerHTML : "";
+			validationConfig.idLastDigits.messageId = attribParser.getString('id4lastdigits.validationMsgId', '');
+			validationConfig.idLastDigits.element = $(parentDoc).find('div[id="' + validationConfig.idLastDigits.messageId +'"]').get(0);
+			validationConfig.idLastDigits.originalText = validationConfig.idLastDigits.element ? validationConfig.idLastDigits.element.innerHTML : "";
+			zoneConfig.elements = (attribParser.getString("zone.element", "")).split(",");
+			
+			for (var a = 0; a < zoneConfig.elements.length; a++) {
+				if (window.parent.document.getElementById(zoneConfig.elements[a])) {
+					zoneConfig.elementObjects[a] = $(parentMain).find('div[id="' + zoneConfig.elements[a] + '"]');
+				} else {
+					zoneConfig.elementObjects[a] = null;
+				}
+			}
 		},
 		
 		onLoadError : function(message) {

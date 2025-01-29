@@ -1,9 +1,6 @@
-var develop = false;
-
 function reset(){
 	inputValue = "";
 	scanAskTime = false;
-	processing = false;
 	qrWebSocket = null;
 	isScanning = false;
 	isProcessing = false;
@@ -47,7 +44,7 @@ function reset(){
 }
 
 function switchPageEvent (topic, publisherData, subscriberData){
-		var activePage = parent.$('#pages').children(':visible');
+		var activePage = $(parentDoc).find('#pages').children(':visible');
 		currentPage = activePage.attr('name');
 		if (doNotReset == true) {
 			doNotReset = false;
@@ -74,14 +71,14 @@ function showText(message, inputType){
 }
 
 function showPhoneErrorValidationText(textToShow) {
-		if (typeof objPhoneValidationMsgId !== "undefined" && objPhoneValidationMsgId !== null) {
-			objPhoneValidationMsgId.innerHTML = '<span class="text_single_element">' + textToShow + '</span>';
-		}
+	if (validationConfig.phone.element !== null) {
+		validationConfig.phone.element.innerHTML = '<span class="text_single_element">' + textToShow + '</span>';
+	}
 }
 
 function showIdlast4digitsErrorValidationText(textToShow) {
-	if (typeof objId4lastdigitsValidationMsgId !== "undefined" && objId4lastdigitsValidationMsgId !== null) {
-		objId4lastdigitsValidationMsgId.innerHTML = '<span class="text_single_element">' + textToShow + '</span>';
+	if (validationConfig.idLastDigits.element !== null) {
+		validationConfig.idLastDigits.element.innerHTML = '<span class="text_single_element">' + textToShow + '</span>';
 	}
 }
 
@@ -589,23 +586,16 @@ function confirmAppointmentId(input){
 			arriveUnitId = getArriveUnitId(foundAppointment.branchId);
 		}
 		
-			// check zone
-		if (loadBalanceUnitNumId != ""){
+		if (zoneConfig.loadBalanceUnitId != "") {
 			zone = sendGetWaitingAreaCommand(foundAppointment.services[0].id);
-			if (zone != "") {				
+			if (zone != "") {
 				params.parameters.level = zone;
-				if (zoneDelays[parseInt(zone,10)-1] != undefined) {
-					if( zoneDelays[parseInt(zone,10)-1] > 0) {
-// creating an appointment visit with an delay causes an error 500. Temporary removed until JIRA VM-957 and QP-13178 are resolved
-		//				params.delay = zoneDelays[parseInt(zone,10)-1];
+
+				for (var a = 0; a < zoneConfig.elementObjects.length; a++) {
+					if (zoneConfig.elementObjects[a] != null && zoneConfig.names[parseInt(zone, 10) - 1] != undefined) {
+						zoneConfig.elementObjects[a].html('<span class="text_single_element">' + zoneConfig.names[parseInt(zone, 10) - 1] + '</span>');
 					}
 				}
-				for (var a = 0; a < zoneElementObj.length; a++){
-					if (zoneElementObj[a] != null && zoneNames[parseInt(zone,10)-1] != undefined){
-						zoneElementObj[a].html('<span class="text_single_element">' + zoneNames[parseInt(zone,10)-1] + '</span>');
-					}
-				}
-				
 			}
 		}
 
@@ -851,8 +841,6 @@ function showInput() {
 // ---------------------------------------------------------------------
 // -------------------------------barcodescanner------------------------------
 // ---------------------------------------------------------------------
-var processing = false;
-var readBlock;
 var keyReceived = "";
 
 function keyPressReceived() {
@@ -872,7 +860,7 @@ function keyPressReceived() {
 			}
 		}
 	}
-	processing = false;
+	isProcessing = false;
 	keyReceived = "";
 }
 
@@ -883,7 +871,7 @@ function keyEventReceived(evt){
 		if (charCode !== 13) {
 			keyReceived += charStr;
 		}
-		if(!processing && keyReceived.length > 1) {
+		if(!isProcessing && keyReceived.length > 1) {
 			if (qrcodeEnabled === true) {
 				qrCodeProcessing();
 			} else {
@@ -896,13 +884,13 @@ function keyEventReceived(evt){
 function barcodeProcessing() {
 	if (barcodeEnabled === true || currentPage == widgetPage) {
 		wwClient.switchHostPage(barcodePage);
-		processing = true;
+		isProcessing = true;
 	}
 }
 
 function barcodeScanned(valFromScan) {
 	var val = valFromScan;
-	processing = false;
+	isProcessing = false;
 	writeDebugInfo("Arrival Widget: received value from div - " + valFromScan);
 	var tempInputValue = val.substring(barcodeStart, (barcodeEnd == -1 ? val.length : barcodeEnd));
 	if (tempInputValue.length > 1) {
@@ -972,13 +960,13 @@ function startScanning(socketQrId) {
         "EANSupport": true,
         "Preview": false,
         "DefaultPreview": false,
-        "ScanInterval": qrcodeScanInterval,
-        "RedLEDOnOFF": qrcodeRedLED,
+        "ScanInterval": qrcodeConfig.scanInterval,
+        "RedLEDOnOFF": qrcodeConfig.redLED,
         "SDKLogsState": true,
-        "MirrorFlip": qrcodeMirror,
+        "MirrorFlip": qrcodeConfig.mirror,
         "Timeout": 60,
-        "Brightness": qrcodeBrightness,
-        "WhiteLEDIntensity": qrcodeWhiteLEDIntensity
+        "Brightness": qrcodeConfig.brightness,
+        "WhiteLEDIntensity": qrcodeConfig.whiteLEDIntensity
     };
 
     const startCommand = {
@@ -1177,17 +1165,17 @@ function writeDebugInfo(msg) {
 	}
 }
 
-function sendGetWaitingAreaCommand(serv){
-	params = {};
-	params.name = "CUSTOM_GET_WAITINGAREA";
-	params.type = "CFM";
-	params.parameters ={"serviceId":serv,"serviceType" : "appointment"};
-	zone = ""
-	cmdResult = customUnitCommand(loadBalanceUnitNumId, params);
-	if ( cmdResult != undefined && cmdResult != null) {
-		if (cmdResult.result != undefined) {
-			zone =  cmdResult.result
-		}
-	}
-	return zone;
+function sendGetWaitingAreaCommand(serv) {
+    params = {};
+    params.name = "CUSTOM_GET_WAITINGAREA";
+    params.type = "CFM";
+    params.parameters = {"serviceId": serv, "serviceType": "appointment"};
+    zone = "";
+    cmdResult = customUnitCommand(zoneConfig.loadBalanceUnitId, params);
+    if (cmdResult != undefined && cmdResult != null) {
+        if (cmdResult.result != undefined) {
+            zone = cmdResult.result
+        }
+    }
+    return zone;
 }
