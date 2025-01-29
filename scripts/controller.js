@@ -1,5 +1,5 @@
-// Version and configuration letants
-let VERSION = "--";
+// version and configuration letants
+let version = "--";
 
 // Branch and unit configuration
 let branchId = -1;
