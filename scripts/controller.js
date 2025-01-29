@@ -155,11 +155,11 @@ function appCacheClear( topic, eventData, subscriberData ) {
 
 var controller = (function($) {
 	function getZoneSettings(){
-		zoneVar = wwRest.getGlobalVariable("waitingAreaSettings_" + branchId);
+		const zoneVar = wwRest.getGlobalVariable("waitingAreaSettings_" + branchId);
 		if (zoneVar != undefined) {
 			zoneVar = JSON.parse(zoneVar.value);
 			for (var z = 0; z < zoneVar.length; z++){
-				pos = zoneVar[z].id-1;
+				const pos = zoneVar[z].id-1;
 				if (pos > -1) {
 					zoneConfig.delays[pos] = zoneVar[z].walkTime;
 					zoneConfig.names[pos] = zoneVar[z].displayName;
@@ -226,13 +226,13 @@ var controller = (function($) {
 				}
 			}
 
-			zoneElement = (attribParser.getString("zone.element", "")).split(",");
+			zoneConfig.elements = (attribParser.getString("zone.element", "")).split(",");
 			
-			for (var a = 0; a < zoneElement.length; a++) {
-				if ( window.parent.document.getElementById( zoneElement[a] ) ){
-					zoneElementObj[a] = $( parentMain ).find( 'div[id="' + zoneElement[a] + '"]' );
+			for (var a = 0; a < zoneConfig.elements.length; a++) {
+				if ( window.parent.document.getElementById( zoneConfig.elements[a] ) ){
+					zoneConfig.elements[a] = $( parentMain ).find( 'div[id="' + zoneConfig.elements[a] + '"]' );
 				} else {
-					zoneElementObj[a] = null;
+					zoneConfig.elements[a] = null;
 				}
 			}
 			
@@ -463,15 +463,6 @@ var controller = (function($) {
 			validationConfig.idLastDigits.messageId = attribParser.getString('id4lastdigits.validationMsgId', '');
 			validationConfig.idLastDigits.element = $(parentDoc).find('div[id="' + validationConfig.idLastDigits.messageId +'"]').get(0);
 			validationConfig.idLastDigits.originalText = validationConfig.idLastDigits.element ? validationConfig.idLastDigits.element.innerHTML : "";
-			zoneConfig.elements = (attribParser.getString("zone.element", "")).split(",");
-			
-			for (var a = 0; a < zoneConfig.elements.length; a++) {
-				if (window.parent.document.getElementById(zoneConfig.elements[a])) {
-					zoneConfig.elementObjects[a] = $(parentMain).find('div[id="' + zoneConfig.elements[a] + '"]');
-				} else {
-					zoneConfig.elementObjects[a] = null;
-				}
-			}
 		},
 		
 		onLoadError : function(message) {
