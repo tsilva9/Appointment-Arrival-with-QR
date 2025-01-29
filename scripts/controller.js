@@ -1,183 +1,168 @@
-var version = "--"
-// 20150529 - BvD
-//			- First version
-// 20150702 - BvD, 5.4.2
-//          - solved octal bug with parseInt
-// 20151201 - BvD  5.4.3
-//			- added search by phone number
-// 20151203 - BvD   5.4.4
-//			- removed console messages which break js on TP
-// 20160922 - BvD   6.1.0.5
-//          - Option QWebbook Id extended with internal id
-//          - Autom detect between Qwebbook id and internal id
-//          - Example Qwebbook id: 00000121450
-//          - Example internal id: {"appointment_id":"12","branch_name":"Branch 001","branch_id":"2","appointment_date":"2016-09-22T14:50:00"}
-// 20160922 - BvD 6.1.0.6
-//          - Solved issue under 6.1 where the services where added a second time to the visit
-// 20180504 - BvD 7.0.0.7
-//			- Added Fastclick to improve speed on a TP3115/Intro8
-//          - Solved issue where arrive would fail if Notes contained null value
-// 20190424 - OlaC 7.0.0.8
-//          - Improved keyboard speed by moving some jquery code to locate elements at loading time instead of every keyclick
-// 20190604 - BvD 7.0.0.9
-//			- add new setting to limit the number of characters in the input
-//			- added style to avoid select of the div's
-//						-webkit-user-select: none; /* Safari 3.1+ */
-//    					-moz-user-select: none; /* Firefox 2+ */
-//					    -ms-user-select: none; /* IE 10+ */
-//					    user-select: none; /* Standard syntax */
-// 20190920 - BvD 7.0.0.10
-//			- code clean up
-// 2020310  - AnnBol 7.0.0.11
-//			- Additional type of inputs (date of Birth, Customer Id (cardNumber))
-//			- Additional parameter default language and listening to the language event from the switchLanguage wgt
-//			- Compare only last 4 digits of the phone number
-//			- New parameter for custom ticket id ( which field to use from the appointment to set a custom ticket id)
-//			- new parametes for not found, too early and too late page instead of messages
-//			- new parameter for asking the customer to enter the time of their appointment, if multiple appointments found
-// 			- new parameter for asking the customer to enter their dateOfBirth
-// 			- Barcode input field is now added to the parent document
-//			- Once barcode has started scanning, switch to barcode search page, but make sure you can't scan immediately again
-//			- Start and end parameter to read a substring from the scanned barcode
-// 20200326 - New parameter to mask the input value with * (only show the last entered one)
-//			- Layout for date of birth input buttons changed so it works on Intro8 as well
-// 20200625 - BvD 7.0.0.13
-//			- detecting interQRCode based on { and ":"
-// 20200629 - BvD 7.0.0.14
-//			- making scanning more fail proof
-//			- make sure that reading json from the scanner does not stop the widget completely if the json is invalid
-// 20200703 - BvD 7.0.0.15
-//			- barcodesearchtimeout was not implementend completely in the scanner function
-// 20200720 - GC 7.0.0.16
-//			- minor bug fixes
-//			- barcodeId now defined (had error in console)
-//			- Replaced .includes on phone number, with indexOf, as .includes does not work on Intro17
-// 20201222 - BvD 7.0.0.17
-//			- fixed issues under old Intro 8
-//          - made sure that notes is also written to custom1
-//          - allow only current branch to be arrived
-// 20210111 - josarm 7.0.0.18
-//			- Added a phone prefix value to be populated on the keyboard by default
-//			- Added a checkbox to enable the option to remove the phone prefix before searching appointemnts
-//			- Added a condition: minimun number of characters for the search
-//			- Added an option to enable the search of the phone whether by considering that the full phone value must be matched or partial match of the value
-// 20210225 - GC 7.0.0.19
-//			- Added ability to arrive multi branch/department appointments using virtual printer utt config
-//			- Added ability to pull multi branch appointments by setting an interval time
-// 20210308 - BvD 7.0.0.20
-//			- GP-3738 Made it possible to use the widget in combination with the keypad widget
-//			- added log, set develop in script.js to try. will show both in console and server.log on Central only
-//			- GP-3834 solved issue with styling of the input field
-// 20210504 - GC 7.0.0.21
-//			- GP-3998 Now handles externalId used in QCA
-// 20210513 - GC 7.0.0.22
-//			- GP-4062 Improved multi branch handling for all arrive by configurations
-// 20210601 - GC 7.0.0.23
-//			- GP-4138 find appointments by last 5 qpId digits and use it as ticket number
-// 20220606 - GC 7.0.0.44-46
-//			- GP-5118 Added keyboard option for the appointment arrival with date of birth
-// 20250121 - BvD 7.0.0.24
-//			- Added QR code support and removed card reader support
+// Version and configuration constants
+const VERSION = "--";
 
-var branchId = -1;
-var browserOpera = false;
-var barcodeId;
-var idField = "";
-var tempIdField = "";
-var inputIdField = "";
-var dateOfBirthInputType = "";
-var dateOfBirthInputFormat = "";
-var unitId = -1;
-var minutesEarly = 15;
-var minutesLate = 0;
-var arrivedPage = "";
-var addBtnId = "";
-var inputId = "";
-var messageId = "";
-var dayId = "";
-var monthId = "";
-var dayId = "";
-var wwClient = qmatic.webwidget.client;
-var wwRest = qmatic.connector.client;
-var parentMain = $( window.parent.document );
-var inputValue = "";
-var yearValue = "";
-var monthValue = "";
-var dayValue = "";
-var maskedInputValue="";
-var startPage="";
-var widgetPage= "";
-var currentPage = "";
-var scanIdField = "";
-var scanInputIdField = "";
-var barcodeEnabled = false;
-var barcodePage = "";
-var timeoutId=0;
-var maxInput=15;
-var vPrinterId = 0;
-var appointmentCacheTime = 0;
-var objInputId;
-var objMessageId;
-var objBarcodeId;
-var objAddButtonId;
-var objYearId;
-var objMonthId;
-var objDayId;
-var yearPlaceholder;
-var monthPlaceholder;
-var dayPlaceholder;
-var parentDoc = $(window.parent.document);
-var pageNotFound, pageTooEarly, pageTooLate, pageMultiple, pageQrcodeBusy;
-var selectedMonth="";
-var enteredAppointmentTime="";
-var enterAppTime="";
-var enterAppTimeState=false;
-var multipleAppointmentsFound = false;
-var enteredDOB = "";
-var enteredPhoneNumber = "";
-var originalTextInMessage = "";
-var enteredCardNumber = "";
-var textFontObj, textFontString, textColor, keyBgColor;
-var origInputStyle;
-var origYearStyle;
-var origMonthStyle;
-var origDayStyle;
-var customTicketIdField="";
-var barcodeStart, barcodeEnd;
-var intro8=false;
-var maskInput;
-var branchList = [];
-var phonePrefix = "";
-var phoneLastDigits = 5;
+// Branch and unit configuration
+let branchId = -1;
+const browserOpera = navigator.userAgent.toLowerCase().indexOf('opera') > -1;
+let barcodeId;
+let idField = "";
+let tempIdField = "";
+let inputIdField = "";
+let dateOfBirthInputType = "";
+let dateOfBirthInputFormat = "";
+let unitId = -1;
 
-var phoneValidationMsgId = "";
-var objPhoneValidationMsgId;
-var phoneValidationOriginalMessageText = "";
-var todaysAppointments = [];
+// Time window configuration
+const DEFAULT_MINUTES_EARLY = 15;
+const DEFAULT_MINUTES_LATE = 0;
+let minutesEarly = DEFAULT_MINUTES_EARLY;
+let minutesLate = DEFAULT_MINUTES_LATE;
 
-var ticketNbrIsIdField = false;
-var id4lastdigitsValidationMsgId = "";
-var objId4lastdigitsValidationMsgId;
-var id4lastdigitsValidationOriginalMessageText = "";
+// Page and element IDs
+let arrivedPage = "";
+let addBtnId = "";
+let inputId = "";
+let messageId = "";
+let dayId = "";
+let monthId = "";
 
-var agentDebug = false;
-var	eventName = "LOG_FROM_WIDGET";
-var	eventData = "";
-var debugUnit = "";
-var ticketElementObj= new Array();
-var arriveFirst = false;
-var phonePrefixShow = true;
-var appCacheData = {"custom1":"","custom2":"","custom3":"","custom4":"","custom5":"","level":"","lang":""};
-var toChar ={35: '#', 42: '*',48: '0',49: '1',50: '2',51: '3',52: '4',53: '5',54: '6',55: '7',56: '8',57: '9'};
-var scanAskTime = false; // use this if scan finds multiple appointments and needs to ask time
-var doNotReset = false; // used to avoid a reset if page changed back from "searching page"
+// Client references
+const wwClient = qmatic.webwidget.client;
+const wwRest = qmatic.connector.client;
+const parentMain = $(window.parent.document);
 
-var loadBalanceUnitNumId = "";
-var zoneDelays = [0,0,0,0,0,0,0,0,0,0]
-var zoneNames = ["Zone 1", "Zone 2", "Zone 3", "Zone 4", "Zone 5", "Zone 6", "Zone 7", "Zone 8", "Zone 9", "Zone 10"]
-var zoneElement= new Array();
-var zoneElementObj= new Array();
-var socketQrId = null;
+// Input state
+let inputValue = "";
+let yearValue = "";
+let monthValue = "";
+let dayValue = "";
+let maskedInputValue = "";
+let startPage = "";
+let widgetPage = "";
+let currentPage = "";
+let scanIdField = "";
+let scanInputIdField = "";
+
+// Feature flags
+let barcodeEnabled = false;
+let barcodePage = "";
+let timeoutId = 0;
+let maxInput = 15;
+let vPrinterId = 0;
+let appointmentCacheTime = 0;
+
+// DOM element references
+let objInputId;
+let objMessageId;
+let objBarcodeId;
+let objAddButtonId;
+let objYearId;
+let objMonthId;
+let objDayId;
+let yearPlaceholder;
+let monthPlaceholder;
+let dayPlaceholder;
+
+const parentDoc = $(window.parent.document);
+
+// Page references
+let pageNotFound, pageTooEarly, pageTooLate, pageMultiple, pageQrcodeBusy;
+
+// State variables
+let selectedMonth = "";
+let enteredAppointmentTime = "";
+let enterAppTime = "";
+let enterAppTimeState = false;
+let multipleAppointmentsFound = false;
+let enteredDOB = "";
+let enteredPhoneNumber = "";
+let originalTextInMessage = "";
+let enteredCardNumber = "";
+
+// Style references
+let textFontObj, textFontString, textColor, keyBgColor;
+let origInputStyle;
+let origYearStyle;
+let origMonthStyle;
+let origDayStyle;
+
+// Custom configuration
+let customTicketIdField = "";
+let barcodeStart, barcodeEnd;
+let intro8 = false;
+let maskInput;
+const branchList = [];
+let phonePrefix = "";
+let phoneLastDigits = 5;
+
+// Validation configuration
+let phoneValidationMsgId = "";
+let objPhoneValidationMsgId;
+let phoneValidationOriginalMessageText = "";
+const todaysAppointments = [];
+
+// Ticket configuration
+let ticketNbrIsIdField = false;
+let id4lastdigitsValidationMsgId = "";
+let objId4lastdigitsValidationMsgId;
+let id4lastdigitsValidationOriginalMessageText = "";
+
+// Debug configuration
+let agentDebug = false;
+const EVENT_NAME = "LOG_FROM_WIDGET";
+let eventData = "";
+let debugUnit = "";
+
+// Element arrays
+const ticketElementObj = [];
+let arriveFirst = false;
+let phonePrefixShow = true;
+
+// Cache data
+const appCacheData = {
+    custom1: "",
+    custom2: "",
+    custom3: "",
+    custom4: "",
+    custom5: "",
+    level: "",
+    lang: ""
+};
+
+// Character mapping
+const toChar = {
+    35: '#',
+    42: '*',
+    48: '0',
+    49: '1',
+    50: '2',
+    51: '3',
+    52: '4',
+    53: '5',
+    54: '6',
+    55: '7',
+    56: '8',
+    57: '9'
+};
+
+// Scan state
+let scanAskTime = false;
+let doNotReset = false;
+
+// Load balancing configuration
+let loadBalanceUnitNumId = "";
+const zoneDelays = [0,0,0,0,0,0,0,0,0,0];
+const zoneNames = ["Zone 1", "Zone 2", "Zone 3", "Zone 4", "Zone 5", "Zone 6", "Zone 7", "Zone 8", "Zone 9", "Zone 10"];
+const zoneElement = [];
+const zoneElementObj = [];
+let socketQrId = null;
+
+// QR code configuration
+let qrcodeBrightness = 50;
+let qrcodeWhiteLEDIntensity = 55;
+let qrcodeMirror = false;
+let qrcodeRedLED = true;
+let qrcodeScanInterval = 5;
 
 function sendUnitEvent(uid, msg) {		
 	var params = {
@@ -186,7 +171,7 @@ function sendUnitEvent(uid, msg) {
 		};
 				
 		var event =  {"M":"E","E":{"evnt":"","type":"APPLICATION", "prm":""}};
-		event.E.evnt = eventName;	
+		event.E.evnt = EVENT_NAME;	
 		event.E.prm = params; 
 		/* no need to include qevents_cometd.js, use the parent object */
 		parent.qevents.publish('/events/APPLICATION', event);
@@ -263,6 +248,12 @@ var controller = (function($) {
 			maxInput = attribParser.getInteger("max.num", '15');
 			dateOfBirthInputType = attribParser.getString('dateOfBirthInputType', '');
 			dateOfBirthInputFormat = attribParser.getString('dateOfBirthInputFormat', '');
+
+			qrcodeBrightness = attribParser.getInteger("qrcode.brightness", 50);
+			qrcodeWhiteLEDIntensity = attribParser.getInteger("qrcode.whiteLEDIntensity", 55);
+			qrcodeMirror = attribParser.getBoolean("qrcode.mirror", false);
+			qrcodeRedLED = attribParser.getBoolean("qrcode.redled", true);
+			qrcodeScanInterval = attribParser.getInteger("qrcode.scan.interval", 5);
 
 
 			vPrinterId = attribParser.getInteger("virtual.printer", 0);

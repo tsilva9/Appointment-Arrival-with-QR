@@ -856,7 +856,6 @@ var readBlock;
 var keyReceived = "";
 
 function keyPressReceived() {
-	console.log("KeyPress Widget: " + widgetPage);
 	if (barcodeEnabled === true || currentPage == widgetPage || currentPage == barcodePage || currentPage == qrcodePage || qrcodeEnabled === true) {
 		if (keyReceived.length === 1  && keyReceived != "#" && keyReceived != "*"){
 			addChar (keyReceived);
@@ -932,12 +931,10 @@ function initQRCodeReader() {
     
     qrWebSocket.addEventListener('open', () => {
         writeDebugInfo('QR Code WebSocket connection opened');
-        console.log("Starting QR Code scanning");
         startScanning(socketQrId);
     });
 
     qrWebSocket.addEventListener('message', (event) => {
-        console.log("Received QR Code message");
 		if (!(event.data instanceof Blob)) {
 			handleQRMessage(event.data);
 		}
@@ -945,7 +942,6 @@ function initQRCodeReader() {
 
     qrWebSocket.addEventListener('close', () => {
         writeDebugInfo('QR Code WebSocket connection closed');
-        console.log("QR Code WebSocket connection closed");
         if (qrWebSocket) {
             qrWebSocket.close();
             qrWebSocket = null;
@@ -958,7 +954,7 @@ function initQRCodeReader() {
     qrWebSocket.addEventListener('error', (event) => {
         writeDebugInfo('QR Code WebSocket error: ' + JSON.stringify(event.target));
         isScanning = false;
-        console.log("QR Code WebSocket error");
+        console.log("QR Code WebSocket error: " + JSON.stringify(event.target));
         // Attempt to reconnect after error
         setTimeout(() => {
             if (!isScanning) {
@@ -976,13 +972,13 @@ function startScanning(socketQrId) {
         "EANSupport": true,
         "Preview": false,
         "DefaultPreview": false,
-        "ScanInterval": 5,
-        "RedLEDOnOFF": true,
+        "ScanInterval": qrcodeScanInterval,
+        "RedLEDOnOFF": qrcodeRedLED,
         "SDKLogsState": true,
-        "MirrorFlip": false,
+        "MirrorFlip": qrcodeMirror,
         "Timeout": 60,
-        "Brightness": 50,
-        "WhiteLEDIntensity": 55
+        "Brightness": qrcodeBrightness,
+        "WhiteLEDIntensity": qrcodeWhiteLEDIntensity
     };
 
     const startCommand = {
@@ -1047,14 +1043,14 @@ function handleQRMessage(data) {
                         handleScannerError();
                     }
                     break;
-                    
+
                 case "Stop":
                     if (result.Status === "SUCCESS") {
                         writeDebugInfo("QR scanner stopped successfully");
                         isScanning = false;
                     }
                     break;
-                    
+
                 case "DecodedText":
                     if (result.Format?.includes("Error") || !result.Text) {
                         break;
