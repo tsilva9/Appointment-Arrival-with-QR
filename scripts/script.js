@@ -701,6 +701,7 @@ function clearChar() {
 }
 
 function showInput() {
+    let nrStars = 0;
 
 	showPhoneErrorValidationText("");
 	showIdlast4digitsErrorValidationText("");
@@ -713,7 +714,7 @@ function showInput() {
 		if (maskInput){
 			nrStars = inputValue.length -1;
 			maskedValue = "";
-			for (var i=0;i<nrStars;i++)
+			for (let i = 0; i < nrStars; i++)
 				maskedValue += "*";
 			maskedValue += inputValue.substring(inputValue.length-1);
 		}

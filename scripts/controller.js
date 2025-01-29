@@ -40,7 +40,7 @@ let yearPlaceholder, monthPlaceholder, dayPlaceholder;
 
 const parentDoc = $(window.parent.document);
 
-let pageNotFound, pageTooEarly, pageTooLate, pageMultiple, qrcodePage;
+let pageNotFound, pageTooEarly, pageTooLate, pageMultiple, qrcodePage, barcodePage;
 
 let selectedMonth = "";
 let enteredAppointmentTime = "";
