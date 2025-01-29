@@ -1,5 +1,4 @@
-let develop = false; // or true if you want debug logging
- // or set to appropriate field name
+let develop = false; 
 let readBlock = null;
 
 function reset(){
@@ -9,9 +8,6 @@ function reset(){
 	isScanning = false;
 	isProcessing = false;
 
-	// Initialise the phone number with the value configured on the widget so people know they don't need to
-	// enter their country code if needed
-	// GP-3675
 	if (phonePrefixShow) {
 		inputValue = phonePrefix;
 	}

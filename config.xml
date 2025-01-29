@@ -15,7 +15,7 @@
   <content src="index.html"/>
   <icon src="images/icon.png"/>  
   <access origin="*"/>  
-  <author>Bouwdewijn van Duijn, Tomas Silva</author>
+  <author>Tomas Silva Fiezzi, Bouwdewijn van Duijn</author>
   <licence>Copyright (c) Qmatic</licence>
 
   <q:standalone>false</q:standalone>
