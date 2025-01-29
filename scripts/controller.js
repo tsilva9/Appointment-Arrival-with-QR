@@ -1,9 +1,9 @@
-// Version and configuration constants
-const VERSION = "--";
+// Version and configuration letants
+let VERSION = "--";
 
 // Branch and unit configuration
 let branchId = -1;
-const browserOpera = navigator.userAgent.toLowerCase().indexOf('opera') > -1;
+let browserOpera = navigator.userAgent.toLowerCase().indexOf('opera') > -1;
 let barcodeId;
 let idField = "";
 let tempIdField = "";
@@ -13,8 +13,8 @@ let dateOfBirthInputFormat = "";
 let unitId = -1;
 
 // Time window configuration
-const DEFAULT_MINUTES_EARLY = 15;
-const DEFAULT_MINUTES_LATE = 0;
+let DEFAULT_MINUTES_EARLY = 15;
+let DEFAULT_MINUTES_LATE = 0;
 let minutesEarly = DEFAULT_MINUTES_EARLY;
 let minutesLate = DEFAULT_MINUTES_LATE;
 
@@ -27,9 +27,9 @@ let dayId = "";
 let monthId = "";
 
 // Client references
-const wwClient = qmatic.webwidget.client;
-const wwRest = qmatic.connector.client;
-const parentMain = $(window.parent.document);
+let wwClient = qmatic.webwidget.client;
+let wwRest = qmatic.connector.client;
+let parentMain = $(window.parent.document);
 
 // Input state
 let inputValue = "";
@@ -63,7 +63,7 @@ let yearPlaceholder;
 let monthPlaceholder;
 let dayPlaceholder;
 
-const parentDoc = $(window.parent.document);
+let parentDoc = $(window.parent.document);
 
 // Page references
 let pageNotFound, pageTooEarly, pageTooLate, pageMultiple, pageQrcodeBusy;
@@ -91,7 +91,7 @@ let customTicketIdField = "";
 let barcodeStart, barcodeEnd;
 let intro8 = false;
 let maskInput;
-const branchList = [];
+let branchList = [];
 let phonePrefix = "";
 let phoneLastDigits = 5;
 
@@ -99,7 +99,7 @@ let phoneLastDigits = 5;
 let phoneValidationMsgId = "";
 let objPhoneValidationMsgId;
 let phoneValidationOriginalMessageText = "";
-const todaysAppointments = [];
+let todaysAppointments = [];
 
 // Ticket configuration
 let ticketNbrIsIdField = false;
@@ -109,17 +109,17 @@ let id4lastdigitsValidationOriginalMessageText = "";
 
 // Debug configuration
 let agentDebug = false;
-const EVENT_NAME = "LOG_FROM_WIDGET";
+let EVENT_NAME = "LOG_FROM_WIDGET";
 let eventData = "";
 let debugUnit = "";
 
 // Element arrays
-const ticketElementObj = [];
+let ticketElementObj = [];
 let arriveFirst = false;
 let phonePrefixShow = true;
 
 // Cache data
-const appCacheData = {
+let appCacheData = {
     custom1: "",
     custom2: "",
     custom3: "",
@@ -130,7 +130,7 @@ const appCacheData = {
 };
 
 // Character mapping
-const toChar = {
+let toChar = {
     35: '#',
     42: '*',
     48: '0',
@@ -151,10 +151,10 @@ let doNotReset = false;
 
 // Load balancing configuration
 let loadBalanceUnitNumId = "";
-const zoneDelays = [0,0,0,0,0,0,0,0,0,0];
-const zoneNames = ["Zone 1", "Zone 2", "Zone 3", "Zone 4", "Zone 5", "Zone 6", "Zone 7", "Zone 8", "Zone 9", "Zone 10"];
-const zoneElement = [];
-const zoneElementObj = [];
+let zoneDelays = [0,0,0,0,0,0,0,0,0,0];
+let zoneNames = ["Zone 1", "Zone 2", "Zone 3", "Zone 4", "Zone 5", "Zone 6", "Zone 7", "Zone 8", "Zone 9", "Zone 10"];
+let zoneElement = [];
+let zoneElementObj = [];
 let socketQrId = null;
 
 // QR code configuration
