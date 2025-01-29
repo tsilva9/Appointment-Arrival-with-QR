@@ -109,12 +109,13 @@
     <q:enum name="Id 4 last Digits (TicketId)" value="id4lastdigits"/>
     <q:enum name="eTermin" value="eTerminId"/>
   </q:attribute>
-  
+
    <q:attribute type="boolean" key="barcode.enabled" name="barcode.enabled" description="barcode.enabled.description" defaultValue="false"></q:attribute>
    <q:attribute type="page" key="page.barcode.busy" name="page.barcode.busy" description="page.barcode.busy.description" ></q:attribute>
    <q:attribute type="number" key="barcode.start" name="barcode.start" description="barcode.start.description" defaultValue="0" ></q:attribute>   
    <q:attribute type="number" key="barcode.end" name="barcode.end" description="barcode.end.description" defaultValue="-1" ></q:attribute>   
    <q:attribute type="boolean" key="qrcode.enabled" name="qrcode.enabled" description="qrcode.enabled.description" defaultValue="true"></q:attribute>
+   <q:attribute type="page" key="page.qrcode.busy" name="page.qrcode.busy" description="page.qrcode.busy.description" defaultValue=""></q:attribute>
    <q:attribute type="number" key="qrcode.brightness" name="qrcode.brightness" description="qrcode.brightness.description" defaultValue="50"></q:attribute>
    <q:attribute type="number" key="qrcode.whiteLEDIntensity" name="qrcode.whiteLEDIntensity" description="qrcode.whiteLEDIntensity.description" defaultValue="55"></q:attribute>
    <q:attribute type="number" key="qrcode.scan.interval" name="qrcode.scan.interval" description="qrcode.scan.interval.description" defaultValue="5"></q:attribute>
